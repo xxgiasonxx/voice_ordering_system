@@ -1,0 +1,12 @@
+Flask==2.2.5
+rasa==3.6.0
+pymongo==4.3.3
+google-cloud-speech==2.23.0
+pyaudio==0.2.14
+python-Levenshtein==0.25.0
+requests==2.31.0
+asyncio==3.4.3
+sqlalchemy<2.0
+numpy<1.25
+setuptools==59.6.0
+# jieba

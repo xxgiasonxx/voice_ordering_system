@@ -1,0 +1,20 @@
+action_endpoint:
+  url: "http://localhost:5055/webhook"
+
+# 如果您的 Qwen LLM 是透過另一個 API 端點訪問，可以在這裡定義，
+# 但更常見的做法是直接在 actions.py 中透過環境變數或常數設定。
+# models:
+#   url: http://my-nlu-server.com/models/default/nlu
+#   token: my-secret-token
+# tracker_store:
+#   type: redis
+#   url: <redis-host>
+#   port: <redis-port>
+#   db: <redis-db>
+#   password: <redis-password>
+# event_broker:
+#   type: pika
+#   url: <rabbitmq-host>
+#   username: <rabbitmq-username>
+#   password: <rabbitmq-password>
+#   queue: rasa_production_events

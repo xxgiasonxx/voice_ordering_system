@@ -1,0 +1,142 @@
+version: "3.1"
+session_config:
+  session_expiration_time: 60
+  carry_over_slots_to_new_session: true
+
+intents:
+  - greet
+  - goodbye
+  - affirm
+  - deny
+  - order_item
+  - ask_menu_category
+  - ask_item_details
+  - specify_quantity
+  - specify_size
+  - specify_option
+  - request_checkout
+  - request_cart_details
+  - remove_from_cart
+  - nlu_fallback # Rasa 內建，由 FallbackClassifier 觸發
+
+entities:
+  - food_name        # 從 NLU 提取的餐點名稱，可能不標準
+  - menu_category    # 從 NLU 提取的餐點類別
+  - quantity
+  - size
+  - option           # 如去冰、醬料等
+  - quantity_modifier # 如 "六塊", "兩份"
+
+slots:
+  # 購物車核心 slot
+  shopping_cart:
+    type: list # 列表，每個元素是一個字典代表一個品項及其詳情
+    initial_value: []
+    influence_conversation: true
+    mappings:
+    - type: custom
+
+  # 用於暫存 NLU 提取的資訊，方便 Action 處理
+  # 這些槽位通常由 NLU 或 Action 填充，不直接影響對話流程，而是供 Action 使用
+  extracted_food_name:
+    type: text
+    influence_conversation: false
+    mappings:
+    - type: from_entity
+      entity: food_name
+  extracted_menu_category:
+    type: text
+    influence_conversation: false
+    mappings:
+    - type: from_entity
+      entity: menu_category
+  extracted_quantity:
+    type: text # 先用 text，Action 內部轉換為數字
+    influence_conversation: false
+    mappings:
+    - type: from_entity
+      entity: quantity
+  extracted_size:
+    type: text
+    influence_conversation: false
+    mappings:
+    - type: from_entity
+      entity: size
+  extracted_option:
+    type: text
+    influence_conversation: false
+    mappings:
+    - type: from_entity
+      entity: option
+  extracted_quantity_modifier: # 如 "六塊", "兩份"
+    type: text
+    influence_conversation: false
+    mappings:
+    - type: from_entity
+      entity: quantity_modifier
+
+  # LLM Fallback 相關
+  qwen_clarified_text: # Qwen LLM 澄清後的文本
+    type: text
+    influence_conversation: false
+    mappings:
+    - type: custom
+
+responses:
+  utter_greet:
+  - text: "您好！歡迎光臨麥當勞，我是點餐機器人。"
+  utter_ask_order:
+  - text: "請問想點些什麼呢？您可以說出品項名稱，或詢問某個類別有什麼餐點，例如「漢堡有哪些」。"
+  utter_goodbye:
+  - text: "謝謝惠顧，祝您用餐愉快！掰掰！"
+  utter_affirm:
+  - text: "好的。"
+  - text: "沒問題。"
+  utter_item_added_to_cart: # 由 Action 填充品項名稱
+  - text: "好的，已將「{item_name_with_details}」加入您的訂單。還需要什麼嗎？或者您可以說「結帳」。"
+  utter_item_not_found_in_db:
+  - text: "不好意思，我們的菜單上好像沒有「{item_name}」這個餐點耶。您可以看看我們的菜單，或換一個試試？"
+  utter_item_out_of_stock:
+  - text: "哎呀，真抱歉，「{item_name}」剛好賣完了，看看別的可以嗎？"
+  utter_item_not_available_general:
+  - text: "不好意思，「{item_name}」目前沒有供應喔。"
+  utter_category_not_found:
+  - text: "嗯...我沒有找到「{category_name}」這個類別的餐點耶。"
+  utter_cart_is_empty:
+  - text: "您的訂單目前還是空的喔，想點些什麼呢？"
+  utter_show_cart_contents: # 由 Action 填充購物車詳情
+  - text: "您目前點了：\n{cart_summary}\n總共是 {total_price} 元。請問還需要什麼嗎？或者確認無誤請說「結帳」。"
+  utter_item_removed_from_cart:
+  - text: "好的，已將「{item_name}」從您的訂單中移除了。"
+  utter_cannot_remove_item_not_in_cart:
+  - text: "不好意思，您的訂單裡沒有「{item_name}」喔。"
+  utter_checkout_prompt_with_total: # Action 計算總價
+  - text: "好的，您的訂單總共是 {total_price} 元。確認結帳嗎？"
+  utter_order_confirmed_thank_you:
+  - text: "您的訂單已確認，謝謝您！請稍候取餐。"
+  utter_default_qwen_fallback_prompt: # 當 Qwen 也無法理解時
+  - text: "不好意思，我還是不太明白您的意思，能請您換個方式說，或直接告訴我餐點的標準名稱嗎？"
+  utter_ask_what_else:
+  - text: "還需要什麼嗎？或者您可以說「結帳」。"
+  utter_inform_item_details: # 由 Action 填充
+  - text: "{item_name} 的價格是 {price}元。{description}" # description 可選
+  utter_inform_category_items: # 由 Action 填充
+  - text: "我們在「{category_name}」類別有：{items_list}。您想點哪一個呢？"
+
+actions:
+  - action_add_to_cart
+  - action_show_cart
+  - action_remove_from_cart
+  - action_update_last_item_quantity # 或更通用的 action_update_cart_item
+  - action_checkout
+  - action_show_category_items
+  - action_show_item_details
+  - action_qwen_fallback # LLM Fallback
+
+# Forms (如果需要複雜的多槽位收集，但對於純資料庫查詢驅動，可能更多依賴 Action 和 Rules)
+# forms:
+#   order_item_form:
+#     required_slots:
+#       - current_food_name_to_order
+#       - current_quantity_to_order
+#       - current_size_to_order

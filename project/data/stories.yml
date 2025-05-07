@@ -1,0 +1,91 @@
+version: "3.1"
+stories:
+- story: User orders a specific item successfully
+  steps:
+  - intent: order_item
+    entities:
+    - food_name: "大麥克"
+  - action: action_add_to_cart # Action 會檢查庫存、價格，並加入購物車
+
+- story: User orders item with quantity
+  steps:
+  - intent: order_item
+    entities:
+    - food_name: "薯條"
+    - quantity: "2"
+  - action: action_add_to_cart
+
+- story: User orders item with size
+  steps:
+  - intent: order_item
+    entities:
+    - food_name: "可樂"
+    - size: "大"
+  - action: action_add_to_cart
+
+- story: User orders item that is out of stock
+  steps:
+  - intent: order_item
+    entities:
+    - food_name: "假設的缺貨商品" # 測試用
+  - action: action_add_to_cart # Action 應回覆缺貨
+
+- story: User orders item not on menu
+  steps:
+  - intent: order_item
+    entities:
+    - food_name: "完全沒賣的東西" # 測試用
+  - action: action_add_to_cart # Action 應回覆查無此商品
+
+- story: User asks for a menu category
+  steps:
+  - intent: ask_menu_category
+    entities:
+    - menu_category: "漢堡"
+  - action: action_show_category_items # Action 從 DB 讀取並告知
+
+- story: User asks for item details
+  steps:
+  - intent: ask_item_details
+    entities:
+    - food_name: "麥香雞"
+  - action: action_show_item_details # Action 從 DB 讀取並告知
+
+- story: User orders, then specifies quantity for last item
+  steps:
+  - intent: order_item
+    entities:
+    - food_name: "雞塊"
+  - action: action_add_to_cart # 假設先加入預設數量
+  - intent: specify_quantity
+    entities:
+    - quantity: "10" # 假設用戶說 "十個"
+  - action: action_update_last_item_quantity # 更新購物車最後一項的數量
+
+- story: User removes an item from cart
+  steps:
+  - intent: order_item # 先點一些東西
+    entities:
+    - food_name: "大麥克"
+  - action: action_add_to_cart
+  - intent: order_item
+    entities:
+    - food_name: "薯條"
+  - action: action_add_to_cart
+  - intent: remove_from_cart
+    entities:
+    - food_name: "大麥克" # 想移除大麥克
+  - action: action_remove_from_cart # Action 處理移除
+
+- story: User orders and then checks out
+  steps:
+  - intent: order_item
+    entities:
+    - food_name: "麥香魚"
+  - action: action_add_to_cart
+  - intent: order_item
+    entities:
+    - food_name: "玉米湯"
+  - action: action_add_to_cart
+  - intent: request_checkout
+  - action: action_checkout

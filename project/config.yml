@@ -1,0 +1,39 @@
+recipe: default.v1
+assistant_id: <YOUR_ASSISTANT_ID> # 填入您的 assistant ID (可隨意命名)
+language: zh
+
+pipeline:
+# # No configuration for the NLU pipeline was provided. The following default pipeline was used to train your model.
+# # If you'd like to customize it, uncomment and adjust the pipeline.
+# # See https://rasa.com/docs/rasa/tuning-your-model for more information.
+  - name: JiebaTokenizer
+  - name: LanguageModelFeaturizer
+    model_name: "bert"
+    model_weights: "bert-base-chinese" # 或其他適合的中文BERT模型
+  - name: DIETClassifier
+    epochs: 100
+    constrain_similarities: true
+  - name: EntitySynonymMapper
+  - name: ResponseSelector
+    epochs: 100
+    retrieval_intent: chitchat # 如果你有閒聊意圖
+  - name: FallbackClassifier # 重要：用於觸發 nlu_fallback
+    threshold: 0.5 # NLU 信心度閾值，低於此則觸發
+    ambiguity_threshold: 0.1 # 模棱兩可閾值
+
+policies:
+# # No configuration for policies was provided. The following default policies were used to train your model.
+# # If you'd like to customize them, uncomment and adjust the policies.
+# # See https://rasa.com/docs/rasa/policies for more information.
+  - name: MemoizationPolicy
+  - name: RulePolicy
+    core_fallback_threshold: 0.3 # Core 的 fallback 閾值
+    core_fallback_action_name: "action_qwen_fallback" # Core 的 fallback action
+    enable_fallback_prediction: true
+  - name: UnexpecTEDIntentPolicy
+    max_history: 5
+    epochs: 100
+  - name: TEDPolicy
+    max_history: 5
+    epochs: 100
+    constrain_similarities: true

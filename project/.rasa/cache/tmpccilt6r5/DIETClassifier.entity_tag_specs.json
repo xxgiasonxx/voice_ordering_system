@@ -1,0 +1,36 @@
+[
+  {
+    "tag_name": "entity",
+    "ids_to_tags": {
+      "1": "B-customization",
+      "2": "I-customization",
+      "3": "L-customization",
+      "4": "U-customization",
+      "5": "B-item",
+      "6": "I-item",
+      "7": "L-item",
+      "8": "U-item",
+      "9": "B-quantity",
+      "10": "I-quantity",
+      "11": "L-quantity",
+      "12": "U-quantity",
+      "0": "O"
+    },
+    "tags_to_ids": {
+      "B-customization": 1,
+      "I-customization": 2,
+      "L-customization": 3,
+      "U-customization": 4,
+      "B-item": 5,
+      "I-item": 6,
+      "L-item": 7,
+      "U-item": 8,
+      "B-quantity": 9,
+      "I-quantity": 10,
+      "L-quantity": 11,
+      "U-quantity": 12,
+      "O": 0
+    },
+    "num_tags": 13
+  }
+]

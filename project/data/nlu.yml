@@ -1,0 +1,239 @@
+version: "3.1"
+nlu:
+- intent: greet
+  examples: |
+    - 你好
+    - 哈囉
+    - 嗨
+    - 早安
+    - 晚安
+    - 你好啊
+    - 嘿，點餐
+    - 欸，你好
+    - 幫我點一下
+
+- intent: order_food
+  examples: |
+    # --- 基本點餐 ---
+    - 我要一個[大麥克](food_item)
+    - 來份[薯條](food_item)
+    - 幫我點個[麥香魚](food_item)
+    - 給我[兩](quantity)個[勁辣雞腿堡](food_item)
+    - [雞塊](food_item:麥克雞塊) [六](quantity)塊
+    - 一杯[可樂](drink_item)
+    - [大麥克](food_item)一個，[中薯](food_item:薯條;size:中)一份
+    - 我要[麥香雞](food_item)跟[玉米湯](food_item)
+    - 點個[雙層牛肉吉事堡](food_item)吧
+    - 幫我來[四塊雞塊](food_item:麥克雞塊;quantity:4)
+    # --- 口語化表達 ---
+    - 嗯...就[大麥克](food_item)吧
+    - 給我個[勁辣雞腿堡](food_item)好了
+    - [麥香魚](food_item)來一個
+    - [雞塊](food_item:麥克雞塊)吧，[十](quantity)塊的
+    - 飲料...[可樂](drink_item)好了
+    - 隨便來個漢堡，[大麥克](food_item)那種
+    - 有[雞塊](food_item:麥克雞塊)沒？來一份
+    - [紅茶](drink_item:檸檬風味紅茶)吧，[大杯](size:大)
+    - 那個魚的漢堡，[麥香魚](food_item)對吧？來一個
+    - 幫我抓個[辣雞腿堡](food_item:勁辣雞腿堡)
+    # --- 帶數量和大小 ---
+    - [兩](quantity)個[大麥克](food_item)加[大薯](food_item:薯條;size:大)
+    - [三](quantity)杯[中](size)的[冰紅茶](drink_item:檸檬風味紅茶;temperature:冰)
+    - [勁辣雞腿堡](food_item)一個，配[小可樂](drink_item:可樂;size:小)
+    - [六塊雞塊](food_item:麥克雞塊;quantity:6)跟[玉米湯](food_item)
+    # --- 詢問式點餐 ---
+    - 你們有[大麥克](food_item)嗎？給我一個
+    - 可以來份[薯條](food_item)嗎？
+    - 幫我弄杯[熱奶茶](drink_item:奶茶;temperature:熱)好嗎？
+
+- intent: ask_menu_item
+  examples: |
+    - 你們有啥漢堡啊？
+    - 漢堡有什麼可以選？
+    - 飲料有哪些？
+    - 有沒有[冰炫風](food_item)啊？
+    - [薯條](food_item)有分什麼大小？
+    - [可樂](drink_item)可以[去冰](ice_level:去冰)嗎？
+    - 套餐有啥選擇？
+    - 今天有啥特價？
+    - [大麥克](food_item)裡面有啥？
+    - 你們什麼最好吃？
+    - 有啥推薦的？
+
+- intent: specify_size
+  examples: |
+    - [薯條](food_item)要[大](size)的
+    - [可樂](drink_item)來[中杯](size:中)
+    - 給我[大](size)份的
+    - 改成[大杯](size:大)
+    - [小](size)的就好
+    - 幫我換[中](size)的
+    - 飲料用[大](size)的
+    - [大](size)份的行不行？
+
+- intent: specify_quantity
+  examples: |
+    - [兩](quantity)個[雞塊](food_item:麥克雞塊)
+    - [一](quantity)杯[可樂](drink_item)
+    - [三](quantity)份[薯條](food_item)
+    - 幫我弄[兩](quantity)個
+    - 改[三](quantity)個
+    - [一](quantity)份就好
+    - [五](quantity)個漢堡
+    - 數量要[四](quantity)
+
+- intent: specify_combo
+  examples: |
+    - 我要[大麥克](food_item)套餐
+    - 來個[薯條](food_item)配[可樂](drink_item)的套餐
+    - [雞塊](food_item:麥克雞塊)套餐，配[中薯](food_item:薯條;size:中)
+    - [勁辣雞腿堡](food_item)有沒有套餐？
+    - 這個可以配套餐嗎？
+    - 套餐要加多少錢？
+    - 套餐的飲料可以換[雪碧](drink_item)嗎？
+    - 幫我升級[大杯](size:大)套餐
+    - 弄個[經典套餐](combo_name:經典)吧
+    - 漢堡幫我配個餐
+
+- intent: specify_option
+  examples: |
+    - [可樂](drink_item)要[去冰](ice_level:去冰)
+    - [紅茶](drink_item:檸檬風味紅茶)給我[少冰](ice_level:少冰)
+    - [雞塊](food_item:麥克雞塊)配[糖醋醬](condiment)
+    - [大麥克](food_item)不要[美乃滋](condiment)
+    - [薯條](food_item)幫我多撒點[胡椒](condiment)
+    - 飲料都[正常冰](ice_level:正常)
+    - 來杯[熱](temperature:熱)的[美式咖啡](drink_item)
+    - [冰炫風](food_item)不要加[巧克力醬](condiment)
+    - [大麥克](food_item)去掉[酸黃瓜](ingredient)
+    - [薯條](food_item)幫我炸久一點
+    - [漢堡](food_item)幫我快點做好
+
+- intent: confirm_order
+  examples: |
+    - 對，就是這樣
+    - 沒錯
+    - 好，這樣可以
+    - 嗯，OK
+    - 就這些
+    - 對對對
+    - 沒問題
+    - 幫我弄吧
+
+- intent: cancel_item
+  examples: |
+    - 不要了
+    - [大麥克](food_item)取消
+    - [薯條](food_item)不用了
+    - 剛剛那個不要
+    - 全部取消吧
+    - [可樂](drink_item)先不要
+    - 算了，不點了
+    - 那個[雞塊](food_item:麥克雞塊)拿掉
+
+- intent: checkout
+  examples: |
+    - 結帳吧
+    - 幫我算一下
+    - 多少錢？
+    - 這樣多少？
+    - 結束點餐
+    - 付錢
+    - 好了，結帳
+    - 全部算一算
+
+- intent: goodbye
+  examples: |
+    - 掰掰
+    - 謝謝
+    - 謝啦
+    - 再見
+    - 拜拜
+    - 辛苦了
+    - 謝謝你
+
+- intent: affirm
+  examples: |
+    - 對
+    - 好
+    - 可以
+    - 沒錯
+    - 嗯
+    - 是
+    - OK
+    - 要
+
+- intent: deny
+  examples: |
+    - 不要
+    - 不用
+    - 不是
+    - 不對
+    - 免了
+    - 沒有
+    - 不需要
+    - 不想
+
+# 新增意圖：詢問優惠或促銷
+- intent: ask_promotion
+  examples: |
+    - 現在有什麼優惠？
+    - 有沒有買一送一？
+    - 今天有啥活動？
+    - 有沒有折價券可以用？
+    - 點套餐有沒有送什麼？
+    - 這個有優惠價嗎？
+    - 有什麼划算的組合？
+
+# 新增意圖：外帶或內用
+- intent: specify_dining_option
+  examples: |
+    - 外帶
+    - 內用
+    - 幫我打包
+    - 在這邊吃
+    - 帶走
+    - 外帶可以快點嗎？
+    - 內用，謝謝
+    - 打包帶走
+
+# 新增意圖：更改訂單
+- intent: modify_order
+  examples: |
+    - 幫我把[可樂](drink_item)換成[雪碧](drink_item)
+    - [大麥克](food_item)改成[麥香雞](food_item)
+    - 飲料換[中杯](size:中)的
+    - [薯條](food_item)改[大](size)的
+    - 剛剛的[雞塊](food_item:麥克雞塊)改[九塊](quantity:9)
+    - 不要[大麥克](food_item)，換[雙層牛肉吉事堡](food_item)
+    - 幫我把套餐飲料換[冰紅茶](drink_item:檸檬風味紅茶)
+    - 剛剛的取消，改點[麥香魚](food_item)
+
+- intent: ask_menu_item_details
+  examples: |
+    - [大麥克](food_item)多少錢？
+    - [麥香雞](food_item)賣多少？
+    - [薯條](food_item)有什麼特別的？
+    - [冰炫風](food_item)是啥？
+    - [可樂](drink_item)一杯多少？
+
+- intent: ask_menu_category_items
+  examples: |
+    - 你們有啥[漢堡](menu_category)？
+    - [飲料](menu_category)有哪些？
+    - [點心](menu_category)有什麼？
+    - [套餐](menu_category)有哪些選擇？
+    - [咖啡](menu_category)有啥種類？
+
+# Lookup Tables
+- lookup: food_item
+  examples: |
+    - data/lookups/food_items.txt
+
+- lookup: drink_item
+  examples: |
+    - data/lookups/drink_items.txt
+
+- lookup: condiment
+  examples: |
+    - data/lookups/condiments.txt
