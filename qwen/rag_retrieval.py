@@ -12,22 +12,46 @@ model = AutoModelForCausalLM.from_pretrained(model_path, load_in_4bit=True, devi
 tokenizer = AutoTokenizer.from_pretrained(model_path)
 
 # 初始化嵌入模型
-embedding_model = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
+embedding_model = HuggingFaceEmbeddings(model_name="Qwen/Qwen3-0.6B")
 
 # 從資料庫載入菜單並轉成向量
 def load_menu_to_vectorstore():
     conn = sqlite3.connect('mcdonalds_menu.db')
     cursor = conn.cursor()
-    cursor.execute("SELECT name, category, price, ingredients, customization_options FROM menu")
-    rows = cursor.fetchall()
-    conn.close()
 
-    # 轉成 LangChain Document 格式
+    # 載入所有表格資料
+    tables = ['menu', 'side_orders', 'drinks', 'snacks', 'mccafe', 'combos']
     documents = []
-    for row in rows:
-        name, category, price, ingredients, customization = row
-        content = f"品項: {name}\n類別: {category}\n價格: {price} 元\n成分: {ingredients}\n客製選項: {customization}"
-        documents.append(Document(page_content=content, metadata={"name": name}))
+
+    for table in tables:
+        cursor.execute(f"SELECT * FROM {table}")
+        rows = cursor.fetchall()
+        columns = [desc[0] for desc in cursor.description]
+
+        for row in rows:
+            row_dict = dict(zip(columns, row))
+            if table == 'menu':
+                content = f"品項: {row_dict['name']}\n類別: {row_dict['category']}\n價格: {row_dict['price']} 元\n描述: {row_dict['description']}"
+            elif table == 'side_orders':
+                content = f"配餐: {row_dict['name']}\n類別: {row_dict['category']}\n價格: {row_dict['price']}\n尺寸選項: {row_dict['size_options']}"
+            elif table == 'drinks':
+                content = f"飲料: {row_dict['name']}\n類別: {row_dict['category']}\n價格: {row_dict['price']}\n尺寸選項: {row_dict['size_options']}\n可熱飲: {row_dict['is_hot']}\n可冰飲: {row_dict['is_iced']}"
+            elif table == 'snacks':
+                content = f"甜點: {row_dict['name']}\n類別: {row_dict['category']}\n價格: {row_dict['price']} 元\n描述: {row_dict['description']}"
+            elif table == 'mccafe':
+                content = f"McCafe: {row_dict['name']}\n類別: {row_dict['category']}\n價格: {row_dict['price']}\n描述: {row_dict['description']}\n是飲料: {row_dict['is_drink']}\n可熱飲: {row_dict['is_hot']}\n可冰飲: {row_dict['is_iced']}"
+            elif table == 'combos':
+                cursor.execute(f"SELECT name FROM menu WHERE id = {row_dict['main_course_id']}")
+                main_name = cursor.fetchone()[0]
+                cursor.execute(f"SELECT name FROM side_orders WHERE id = {row_dict['default_side_order_id']}")
+                side_name = cursor.fetchone()[0]
+                cursor.execute(f"SELECT name FROM drinks WHERE id = {row_dict['default_drink_id']}")
+                drink_name = cursor.fetchone()[0]
+                content = f"套餐: {row_dict['name']}\n主餐: {main_name}\n配餐: {side_name}\n飲料: {drink_name}\n價格: {row_dict['price']} 元\n升級選項: {row_dict['upgrade_options']}\n早餐套餐: {row_dict['is_breakfast_combo']}"
+
+            documents.append(Document(page_content=content, metadata={"table": table, "name": row_dict['name']}))
+
+    conn.close()
 
     # 存進 Chroma 向量資料庫
     vectorstore = Chroma.from_documents(documents, embedding_model, collection_name="mcdonalds_menu")
@@ -40,7 +64,7 @@ def rag_query(query, vectorstore):
     context = "\n\n".join([doc.page_content for doc in docs])
 
     # 建構 prompt
-    system_prompt = "你是一個麥當勞點餐助手，根據用戶查詢和菜單資訊，生成自然、親切的回應。用台灣口語！"
+    system_prompt = "你是一個麥當勞點餐助手，根據用戶查詢和菜單資訊，生成自然、親切的回應。用台灣口語！如果用戶問套餐，提到主餐、配餐和飲料；如果問單點，提到價格和客製選項。"
     prompt = f"{system_prompt}\n\n菜單資訊:\n{context}\n\n用戶: {query}\n助手: "
     
     # 用 Qwen3 生成回應
@@ -52,8 +76,8 @@ def rag_query(query, vectorstore):
 if __name__ == "__main__":
     vectorstore = load_menu_to_vectorstore()
     test_queries = [
-        "我要一個大麥克",
-        "有什麼飲料？",
+        "我要一個大麥克套餐",
+        "有什麼飲料可以選？",
         "薯條可以無鹽嗎？",
         "麥香雞多少錢？"
     ]
