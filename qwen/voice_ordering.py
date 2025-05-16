@@ -2,7 +2,7 @@
 import whisper
 from gtts import gTTS
 import os
-from rag_retrieval import load_menu_to_vectorstore, rag_query
+from qwen.rag_mcdonalds import load_menu_to_vectorstore, rag_query
 
 # 初始化 Whisper 模型
 whisper_model = whisper.load_model("base")
