@@ -1,0 +1,1170 @@
+[
+  {
+    "page_content": "id: 1\n類別: 台式蛋餅\n品項名稱: 原味\n價格: 30.0 元\n起司: 1\n泡菜: 1\n套餐: A/B/C/D\n素食: 1\n",
+    "metadata": {
+      "table": "main_menu",
+      "class": "台式蛋餅",
+      "name": "原味"
+    }
+  },
+  {
+    "page_content": "id: 2\n類別: 台式蛋餅\n品項名稱: 玉米\n價格: 40.0 元\n加蛋: 1\n起司: 1\n泡菜: 1\n套餐: A/B/C/D\n素食: 1\n",
+    "metadata": {
+      "table": "main_menu",
+      "class": "台式蛋餅",
+      "name": "玉米"
+    }
+  },
+  {
+    "page_content": "id: 3\n類別: 台式蛋餅\n品項名稱: 蔬菜\n價格: 40.0 元\n加蛋: 1\n起司: 1\n泡菜: 1\n套餐: A/B/C/D\n素食: 1\n",
+    "metadata": {
+      "table": "main_menu",
+      "class": "台式蛋餅",
+      "name": "蔬菜"
+    }
+  },
+  {
+    "page_content": "id: 4\n類別: 台式蛋餅\n品項名稱: 肉鬆\n價格: 40.0 元\n加蛋: 1\n起司: 1\n泡菜: 1\n套餐: A/B/C/D\n",
+    "metadata": {
+      "table": "main_menu",
+      "class": "台式蛋餅",
+      "name": "肉鬆"
+    }
+  },
+  {
+    "page_content": "id: 5\n類別: 台式蛋餅\n品項名稱: 火腿\n價格: 45.0 元\n加蛋: 1\n起司: 1\n泡菜: 1\n套餐: A/B/C/D\n",
+    "metadata": {
+      "table": "main_menu",
+      "class": "台式蛋餅",
+      "name": "火腿"
+    }
+  },
+  {
+    "page_content": "id: 6\n類別: 台式蛋餅\n品項名稱: 培根\n價格: 45.0 元\n加蛋: 1\n起司: 1\n泡菜: 1\n套餐: A/B/C/D\n",
+    "metadata": {
+      "table": "main_menu",
+      "class": "台式蛋餅",
+      "name": "培根"
+    }
+  },
+  {
+    "page_content": "id: 7\n類別: 台式蛋餅\n品項名稱: 鮪魚玉米\n價格: 45.0 元\n加蛋: 1\n起司: 1\n泡菜: 1\n套餐: A/B/C/D\n推薦: 1\n",
+    "metadata": {
+      "table": "main_menu",
+      "class": "台式蛋餅",
+      "name": "鮪魚玉米"
+    }
+  },
+  {
+    "page_content": "id: 8\n類別: 台式蛋餅\n品項名稱: 美式燻雞\n價格: 45.0 元\n起司: 1\n泡菜: 1\n套餐: A/B/C/D\n",
+    "metadata": {
+      "table": "main_menu",
+      "class": "台式蛋餅",
+      "name": "美式燻雞"
+    }
+  },
+  {
+    "page_content": "id: 9\n類別: 台式蛋餅\n品項名稱: 咔滋炸蛋餅\n價格: 50.0 元\n套餐: A/B/C/D\n推薦: 1\n",
+    "metadata": {
+      "table": "main_menu",
+      "class": "台式蛋餅",
+      "name": "咔滋炸蛋餅"
+    }
+  },
+  {
+    "page_content": "id: 10\n類別: 台式蛋餅\n品項名稱: 雙蛋古早味\n價格: 50.0 元\n起司: 1\n泡菜: 1\n套餐: A/B/C/D\n推薦: 1\n",
+    "metadata": {
+      "table": "main_menu",
+      "class": "台式蛋餅",
+      "name": "雙蛋古早味"
+    }
+  },
+  {
+    "page_content": "id: 11\n類別: 台式蛋餅\n品項名稱: 薯餅蛋餅\n價格: 50.0 元\n加蛋: 1\n起司: 1\n泡菜: 1\n套餐: A/B/C/D\n素食: 1\n推薦: 1\n",
+    "metadata": {
+      "table": "main_menu",
+      "class": "台式蛋餅",
+      "name": "薯餅蛋餅"
+    }
+  },
+  {
+    "page_content": "id: 12\n類別: 台式蛋餅\n品項名稱: 里肌燒肉\n價格: 55.0 元\n加蛋: 1\n起司: 1\n泡菜: 1\n套餐: A/B/C/D\n推薦: 1\n",
+    "metadata": {
+      "table": "main_menu",
+      "class": "台式蛋餅",
+      "name": "里肌燒肉"
+    }
+  },
+  {
+    "page_content": "id: 13\n類別: 台式蛋餅\n品項名稱: 青花椒豬\n價格: 55.0 元\n加蛋: 1\n起司: 1\n泡菜: 1\n套餐: A/B/C/D\n",
+    "metadata": {
+      "table": "main_menu",
+      "class": "台式蛋餅",
+      "name": "青花椒豬"
+    }
+  },
+  {
+    "page_content": "id: 14\n類別: 台式蛋餅\n品項名稱: 美式香腸\n價格: 55.0 元\n起司: 1\n泡菜: 1\n套餐: A/B/C/D\n",
+    "metadata": {
+      "table": "main_menu",
+      "class": "台式蛋餅",
+      "name": "美式香腸"
+    }
+  },
+  {
+    "page_content": "id: 15\n類別: 台式蛋餅\n品項名稱: 韓式雞柳\n價格: 60.0 元\n加蛋: 1\n起司: 1\n套餐: A/B/C/D\n",
+    "metadata": {
+      "table": "main_menu",
+      "class": "台式蛋餅",
+      "name": "韓式雞柳"
+    }
+  },
+  {
+    "page_content": "id: 16\n類別: 台式蛋餅\n品項名稱: 和風烤雞腿\n價格: 60.0 元\n加蛋: 1\n起司: 1\n泡菜: 1\n套餐: A/B/C/D\n",
+    "metadata": {
+      "table": "main_menu",
+      "class": "台式蛋餅",
+      "name": "和風烤雞腿"
+    }
+  },
+  {
+    "page_content": "id: 17\n類別: 台式蛋餅\n品項名稱: 芝心披薩\n價格: 60.0 元\n起司: 1\n泡菜: 1\n套餐: A/B/C/D\n",
+    "metadata": {
+      "table": "main_menu",
+      "class": "台式蛋餅",
+      "name": "芝心披薩"
+    }
+  },
+  {
+    "page_content": "id: 18\n類別: 台式蛋餅\n品項名稱: 泰式打拋豬起司\n價格: 80.0 元\n加蛋: 1\n泡菜: 1\n套餐: A/B/C/D\n",
+    "metadata": {
+      "table": "main_menu",
+      "class": "台式蛋餅",
+      "name": "泰式打拋豬起司"
+    }
+  },
+  {
+    "page_content": "id: 19\n類別: 吐司\n品項名稱: 奶油\n價格: 20.0 元\n加蛋: 1\n起司: 1\n山型丹麥: 1\n套餐: A/B/C/D\n素食: 1\n",
+    "metadata": {
+      "table": "main_menu",
+      "class": "吐司",
+      "name": "奶油"
+    }
+  },
+  {
+    "page_content": "id: 20\n類別: 吐司\n品項名稱: 草莓\n價格: 20.0 元\n加蛋: 1\n起司: 1\n山型丹麥: 1\n套餐: A/B/C/D\n素食: 1\n",
+    "metadata": {
+      "table": "main_menu",
+      "class": "吐司",
+      "name": "草莓"
+    }
+  },
+  {
+    "page_content": "id: 21\n類別: 吐司\n品項名稱: 花生\n價格: 20.0 元\n加蛋: 1\n起司: 1\n山型丹麥: 1\n套餐: A/B/C/D\n素食: 1\n",
+    "metadata": {
+      "table": "main_menu",
+      "class": "吐司",
+      "name": "花生"
+    }
+  },
+  {
+    "page_content": "id: 22\n類別: 吐司\n品項名稱: 巧克力\n價格: 20.0 元\n加蛋: 1\n起司: 1\n山型丹麥: 1\n套餐: A/B/C/D\n素食: 1\n推薦: 1\n",
+    "metadata": {
+      "table": "main_menu",
+      "class": "吐司",
+      "name": "巧克力"
+    }
+  },
+  {
+    "page_content": "id: 23\n類別: 吐司\n品項名稱: 奶酥\n價格: 25.0 元\n加蛋: 1\n起司: 1\n山型丹麥: 1\n套餐: A/B/C/D\n素食: 1\n推薦: 1\n",
+    "metadata": {
+      "table": "main_menu",
+      "class": "吐司",
+      "name": "奶酥"
+    }
+  },
+  {
+    "page_content": "id: 24\n類別: 吐司\n品項名稱: 芝麻\n價格: 25.0 元\n加蛋: 1\n起司: 1\n山型丹麥: 1\n套餐: A/B/C/D\n素食: 1\n",
+    "metadata": {
+      "table": "main_menu",
+      "class": "吐司",
+      "name": "芝麻"
+    }
+  },
+  {
+    "page_content": "id: 25\n類別: 吐司\n品項名稱: 抹茶奶酥\n價格: 30.0 元\n加蛋: 1\n起司: 1\n山型丹麥: 1\n套餐: A/B/C/D\n素食: 1\n",
+    "metadata": {
+      "table": "main_menu",
+      "class": "吐司",
+      "name": "抹茶奶酥"
+    }
+  },
+  {
+    "page_content": "id: 26\n類別: 吐司\n品項名稱: 火腿\n價格: 30.0 元\n加蛋: 1\n起司: 1\n山型丹麥: 1\n套餐: A/B/C/D\n",
+    "metadata": {
+      "table": "main_menu",
+      "class": "吐司",
+      "name": "火腿"
+    }
+  },
+  {
+    "page_content": "id: 27\n類別: 吐司\n品項名稱: 煎蛋\n價格: 30.0 元\n起司: 1\n山型丹麥: 1\n套餐: A/B/C/D\n素食: 1\n",
+    "metadata": {
+      "table": "main_menu",
+      "class": "吐司",
+      "name": "煎蛋"
+    }
+  },
+  {
+    "page_content": "id: 28\n類別: 吐司\n品項名稱: 肉鬆\n價格: 35.0 元\n加蛋: 1\n起司: 1\n山型丹麥: 1\n套餐: A/B/C/D\n",
+    "metadata": {
+      "table": "main_menu",
+      "class": "吐司",
+      "name": "肉鬆"
+    }
+  },
+  {
+    "page_content": "id: 29\n類別: 吐司\n品項名稱: 蔬菜\n價格: 35.0 元\n加蛋: 1\n起司: 1\n山型丹麥: 1\n套餐: A/B/C/D\n素食: 1\n",
+    "metadata": {
+      "table": "main_menu",
+      "class": "吐司",
+      "name": "蔬菜"
+    }
+  },
+  {
+    "page_content": "id: 30\n類別: 吐司\n品項名稱: 培根吐司\n價格: 40.0 元\n加蛋: 1\n起司: 1\n山型丹麥: 1\n套餐: A/B/C/D\n",
+    "metadata": {
+      "table": "main_menu",
+      "class": "吐司",
+      "name": "培根吐司"
+    }
+  },
+  {
+    "page_content": "id: 31\n類別: 吐司\n品項名稱: 薯餅吐司\n價格: 45.0 元\n加蛋: 1\n起司: 1\n山型丹麥: 1\n套餐: A/B/C/D\n素食: 1\n",
+    "metadata": {
+      "table": "main_menu",
+      "class": "吐司",
+      "name": "薯餅吐司"
+    }
+  },
+  {
+    "page_content": "id: 32\n類別: 吐司\n品項名稱: 鮪魚玉米\n價格: 45.0 元\n加蛋: 1\n起司: 1\n山型丹麥: 1\n套餐: A/B/C/D\n推薦: 1\n",
+    "metadata": {
+      "table": "main_menu",
+      "class": "吐司",
+      "name": "鮪魚玉米"
+    }
+  },
+  {
+    "page_content": "id: 33\n類別: 吐司\n品項名稱: 青花椒豬\n價格: 50.0 元\n加蛋: 1\n起司: 1\n山型丹麥: 1\n套餐: A/B/C/D\n推薦: 1\n",
+    "metadata": {
+      "table": "main_menu",
+      "class": "吐司",
+      "name": "青花椒豬"
+    }
+  },
+  {
+    "page_content": "id: 34\n類別: 吐司\n品項名稱: 里肌燒肉\n價格: 50.0 元\n加蛋: 1\n起司: 1\n山型丹麥: 1\n套餐: A/B/C/D\n推薦: 1\n",
+    "metadata": {
+      "table": "main_menu",
+      "class": "吐司",
+      "name": "里肌燒肉"
+    }
+  },
+  {
+    "page_content": "id: 35\n類別: 吐司\n品項名稱: 板烤雞肉\n價格: 50.0 元\n加蛋: 1\n起司: 1\n山型丹麥: 1\n套餐: A/B/C/D\n推薦: 1\n",
+    "metadata": {
+      "table": "main_menu",
+      "class": "吐司",
+      "name": "板烤雞肉"
+    }
+  },
+  {
+    "page_content": "id: 36\n類別: 吐司\n品項名稱: 哈姆燻雞\n價格: 55.0 元\n加蛋: 1\n起司: 1\n山型丹麥: 1\n套餐: A/B/C/D\n",
+    "metadata": {
+      "table": "main_menu",
+      "class": "吐司",
+      "name": "哈姆燻雞"
+    }
+  },
+  {
+    "page_content": "id: 37\n類別: 漢堡\n品項名稱: 豬肉堡\n價格: 40.0 元\n加蛋: 1\n起司: 1\n套餐: A/B/C/D\n",
+    "metadata": {
+      "table": "main_menu",
+      "class": "漢堡",
+      "name": "豬肉堡"
+    }
+  },
+  {
+    "page_content": "id: 38\n類別: 漢堡\n品項名稱: 夏威夷麥香雞堡\n價格: 45.0 元\n加蛋: 1\n起司: 1\n套餐: A/B/C/D\n推薦: 1\n",
+    "metadata": {
+      "table": "main_menu",
+      "class": "漢堡",
+      "name": "夏威夷麥香雞堡"
+    }
+  },
+  {
+    "page_content": "id: 39\n類別: 漢堡\n品項名稱: 里肌燒肉堡\n價格: 55.0 元\n加蛋: 1\n起司: 1\n套餐: A/B/C/D\n推薦: 1\n",
+    "metadata": {
+      "table": "main_menu",
+      "class": "漢堡",
+      "name": "里肌燒肉堡"
+    }
+  },
+  {
+    "page_content": "id: 40\n類別: 漢堡\n品項名稱: 青花椒豬堡\n價格: 55.0 元\n加蛋: 1\n起司: 1\n套餐: A/B/C/D\n",
+    "metadata": {
+      "table": "main_menu",
+      "class": "漢堡",
+      "name": "青花椒豬堡"
+    }
+  },
+  {
+    "page_content": "id: 41\n類別: 漢堡\n品項名稱: 嫩煎雞柳堡\n價格: 55.0 元\n加蛋: 1\n起司: 1\n套餐: A/B/C/D\n推薦: 1\n",
+    "metadata": {
+      "table": "main_menu",
+      "class": "漢堡",
+      "name": "嫩煎雞柳堡"
+    }
+  },
+  {
+    "page_content": "id: 42\n類別: 漢堡\n品項名稱: 和風雞腿堡\n價格: 55.0 元\n加蛋: 1\n起司: 1\n套餐: A/B/C/D\n",
+    "metadata": {
+      "table": "main_menu",
+      "class": "漢堡",
+      "name": "和風雞腿堡"
+    }
+  },
+  {
+    "page_content": "id: 43\n類別: 漢堡\n品項名稱: 黃金豬排堡\n價格: 60.0 元\n加蛋: 1\n起司: 1\n套餐: A/B/C/D\n",
+    "metadata": {
+      "table": "main_menu",
+      "class": "漢堡",
+      "name": "黃金豬排堡"
+    }
+  },
+  {
+    "page_content": "id: 44\n類別: 漢堡\n品項名稱: 卡滋蝦堡\n價格: 60.0 元\n加蛋: 1\n起司: 1\n套餐: A/B/C/D\n",
+    "metadata": {
+      "table": "main_menu",
+      "class": "漢堡",
+      "name": "卡滋蝦堡"
+    }
+  },
+  {
+    "page_content": "id: 45\n類別: 漢堡\n品項名稱: 鮮酥魚柳堡\n價格: 60.0 元\n加蛋: 1\n起司: 1\n套餐: A/B/C/D\n",
+    "metadata": {
+      "table": "main_menu",
+      "class": "漢堡",
+      "name": "鮮酥魚柳堡"
+    }
+  },
+  {
+    "page_content": "id: 46\n類別: 漢堡\n品項名稱: 美式牛肉堡\n價格: 65.0 元\n加蛋: 1\n起司: 1\n套餐: A/B/C/D\n推薦: 1\n",
+    "metadata": {
+      "table": "main_menu",
+      "class": "漢堡",
+      "name": "美式牛肉堡"
+    }
+  },
+  {
+    "page_content": "id: 47\n類別: 漢堡\n品項名稱: 脆皮雞腿堡\n價格: 65.0 元\n加蛋: 1\n起司: 1\n套餐: A/B/C/D\n推薦: 1\n",
+    "metadata": {
+      "table": "main_menu",
+      "class": "漢堡",
+      "name": "脆皮雞腿堡"
+    }
+  },
+  {
+    "page_content": "id: 48\n類別: 湯品\n品項名稱: 黃金濃湯\n價格: 35.0 元\n套餐: 無\n",
+    "metadata": {
+      "table": "main_menu",
+      "class": "湯品",
+      "name": "黃金濃湯"
+    }
+  },
+  {
+    "page_content": "id: 49\n類別: 鬆餅\n品項名稱: 蜂蜜\n價格: 40.0 元\n加蛋: 1\n起司: 1\n套餐: A/B/C/D\n素食: 1\n推薦: 1\n",
+    "metadata": {
+      "table": "main_menu",
+      "class": "鬆餅",
+      "name": "蜂蜜"
+    }
+  },
+  {
+    "page_content": "id: 50\n類別: 鬆餅\n品項名稱: 巧克力\n價格: 40.0 元\n加蛋: 1\n起司: 1\n套餐: A/B/C/D\n素食: 1\n",
+    "metadata": {
+      "table": "main_menu",
+      "class": "鬆餅",
+      "name": "巧克力"
+    }
+  },
+  {
+    "page_content": "id: 51\n類別: 鬆餅\n品項名稱: 芝麻\n價格: 45.0 元\n加蛋: 1\n起司: 1\n套餐: A/B/C/D\n素食: 1\n",
+    "metadata": {
+      "table": "main_menu",
+      "class": "鬆餅",
+      "name": "芝麻"
+    }
+  },
+  {
+    "page_content": "id: 52\n類別: 鬆餅\n品項名稱: 抹茶奶酥\n價格: 50.0 元\n加蛋: 1\n起司: 1\n套餐: A/B/C/D\n素食: 1\n",
+    "metadata": {
+      "table": "main_menu",
+      "class": "鬆餅",
+      "name": "抹茶奶酥"
+    }
+  },
+  {
+    "page_content": "id: 53\n類別: 鬆餅\n品項名稱: 起司蛋\n價格: 55.0 元\n套餐: A/B/C/D\n素食: 1\n推薦: 1\n",
+    "metadata": {
+      "table": "main_menu",
+      "class": "鬆餅",
+      "name": "起司蛋"
+    }
+  },
+  {
+    "page_content": "id: 54\n類別: 鬆餅\n品項名稱: 夏威夷薯餅\n價格: 65.0 元\n加蛋: 1\n起司: 1\n套餐: A/B/C/D\n",
+    "metadata": {
+      "table": "main_menu",
+      "class": "鬆餅",
+      "name": "夏威夷薯餅"
+    }
+  },
+  {
+    "page_content": "id: 55\n類別: 帕瑪森軟法\n品項名稱: 奶酥\n價格: 50.0 元\n加蛋: 1\n起司: 1\n套餐: A/B/C/D\n素食: 1\n",
+    "metadata": {
+      "table": "main_menu",
+      "class": "帕瑪森軟法",
+      "name": "奶酥"
+    }
+  },
+  {
+    "page_content": "id: 56\n類別: 帕瑪森軟法\n品項名稱: 香蒜\n價格: 50.0 元\n加蛋: 1\n起司: 1\n套餐: A/B/C/D\n",
+    "metadata": {
+      "table": "main_menu",
+      "class": "帕瑪森軟法",
+      "name": "香蒜"
+    }
+  },
+  {
+    "page_content": "id: 57\n類別: 帕瑪森軟法\n品項名稱: 起司蛋\n價格: 60.0 元\n套餐: A/B/C/D\n素食: 1\n",
+    "metadata": {
+      "table": "main_menu",
+      "class": "帕瑪森軟法",
+      "name": "起司蛋"
+    }
+  },
+  {
+    "page_content": "id: 58\n類別: 帕瑪森軟法\n品項名稱: 嫩煎雞柳\n價格: 65.0 元\n加蛋: 1\n起司: 1\n套餐: A/B/C/D\n推薦: 1\n",
+    "metadata": {
+      "table": "main_menu",
+      "class": "帕瑪森軟法",
+      "name": "嫩煎雞柳"
+    }
+  },
+  {
+    "page_content": "id: 59\n類別: 帕瑪森軟法\n品項名稱: 和風烤腿雞\n價格: 65.0 元\n加蛋: 1\n起司: 1\n套餐: A/B/C/D\n",
+    "metadata": {
+      "table": "main_menu",
+      "class": "帕瑪森軟法",
+      "name": "和風烤腿雞"
+    }
+  },
+  {
+    "page_content": "id: 60\n類別: 帕瑪森軟法\n品項名稱: 美式香腸\n價格: 65.0 元\n加蛋: 1\n起司: 1\n套餐: A/B/C/D\n推薦: 1\n",
+    "metadata": {
+      "table": "main_menu",
+      "class": "帕瑪森軟法",
+      "name": "美式香腸"
+    }
+  },
+  {
+    "page_content": "id: 61\n類別: 米香堡\n品項名稱: 青花椒豬柳\n價格: 65.0 元\n加蛋: 1\n起司: 1\n套餐: A/B/C/D\n",
+    "metadata": {
+      "table": "main_menu",
+      "class": "米香堡",
+      "name": "青花椒豬柳"
+    }
+  },
+  {
+    "page_content": "id: 62\n類別: 米香堡\n品項名稱: 嫩煎雞柳\n價格: 65.0 元\n加蛋: 1\n起司: 1\n套餐: A/B/C/D\n推薦: 1\n",
+    "metadata": {
+      "table": "main_menu",
+      "class": "米香堡",
+      "name": "嫩煎雞柳"
+    }
+  },
+  {
+    "page_content": "id: 63\n類別: 米香堡\n品項名稱: 和風烤腿排\n價格: 65.0 元\n加蛋: 1\n起司: 1\n套餐: A/B/C/D\n",
+    "metadata": {
+      "table": "main_menu",
+      "class": "米香堡",
+      "name": "和風烤腿排"
+    }
+  },
+  {
+    "page_content": "id: 64\n類別: 口袋餅\n品項名稱: 起司蛋\n價格: 50.0 元\n套餐: A/B/C/D\n素食: 1\n推薦: 1\n",
+    "metadata": {
+      "table": "main_menu",
+      "class": "口袋餅",
+      "name": "起司蛋"
+    }
+  },
+  {
+    "page_content": "id: 65\n類別: 口袋餅\n品項名稱: 嫩煎雞柳\n價格: 55.0 元\n加蛋: 1\n起司: 1\n套餐: A/B/C/D\n推薦: 1\n",
+    "metadata": {
+      "table": "main_menu",
+      "class": "口袋餅",
+      "name": "嫩煎雞柳"
+    }
+  },
+  {
+    "page_content": "id: 66\n類別: 口袋餅\n品項名稱: 泰式雞\n價格: 55.0 元\n加蛋: 1\n起司: 1\n套餐: A/B/C/D\n",
+    "metadata": {
+      "table": "main_menu",
+      "class": "口袋餅",
+      "name": "泰式雞"
+    }
+  },
+  {
+    "page_content": "id: 67\n類別: 口袋餅\n品項名稱: 鮮酥魚柳\n價格: 60.0 元\n加蛋: 1\n起司: 1\n套餐: A/B/C/D\n",
+    "metadata": {
+      "table": "main_menu",
+      "class": "口袋餅",
+      "name": "鮮酥魚柳"
+    }
+  },
+  {
+    "page_content": "id: 68\n類別: 蛋包飯磚\n品項名稱: 蛋包飯磚\n價格: 60.0 元\n加蛋: 1\n套餐: A/B/C/D\n推薦: 1\n",
+    "metadata": {
+      "table": "main_menu",
+      "class": "蛋包飯磚",
+      "name": "蛋包飯磚"
+    }
+  },
+  {
+    "page_content": "id: 69\n類別: 蛋包飯磚\n品項名稱: 黃金豬排\n價格: 100.0 元\n加蛋: 1\n套餐: A/B/C/D\n",
+    "metadata": {
+      "table": "main_menu",
+      "class": "蛋包飯磚",
+      "name": "黃金豬排"
+    }
+  },
+  {
+    "page_content": "id: 70\n類別: 蛋包飯磚\n品項名稱: 嫩煎雞柳\n價格: 100.0 元\n加蛋: 1\n套餐: A/B/C/D\n",
+    "metadata": {
+      "table": "main_menu",
+      "class": "蛋包飯磚",
+      "name": "嫩煎雞柳"
+    }
+  },
+  {
+    "page_content": "id: 71\n類別: 阿華田聯名\n品項名稱: 濃心棉花糖軟法\n價格: 50.0 元\n套餐: A/B/C/D\n",
+    "metadata": {
+      "table": "main_menu",
+      "class": "阿華田聯名",
+      "name": "濃心棉花糖軟法"
+    }
+  },
+  {
+    "page_content": "id: 72\n類別: 阿華田聯名\n品項名稱: 濃心棉花糖蛋餅\n價格: 65.0 元\n套餐: A/B/C/D\n",
+    "metadata": {
+      "table": "main_menu",
+      "class": "阿華田聯名",
+      "name": "濃心棉花糖蛋餅"
+    }
+  },
+  {
+    "page_content": "id: 73\n類別: 阿華田聯名\n品項名稱: 濃心棉花糖脆酷力厚片\n價格: 65.0 元\n套餐: A/B/C/D\n",
+    "metadata": {
+      "table": "main_menu",
+      "class": "阿華田聯名",
+      "name": "濃心棉花糖脆酷力厚片"
+    }
+  },
+  {
+    "page_content": "id: 74\n類別: 阿華田聯名\n品項名稱: 濃心棉花糖脆酷力鬆餅\n價格: 85.0 元\n套餐: A/B/C/D\n",
+    "metadata": {
+      "table": "main_menu",
+      "class": "阿華田聯名",
+      "name": "濃心棉花糖脆酷力鬆餅"
+    }
+  },
+  {
+    "page_content": "id: 75\n類別: 阿華田聯名\n品項名稱: 脆酷力厚片\n價格: 45.0 元\n套餐: A/B/C/D\n素食: 1\n",
+    "metadata": {
+      "table": "main_menu",
+      "class": "阿華田聯名",
+      "name": "脆酷力厚片"
+    }
+  },
+  {
+    "page_content": "id: 76\n類別: 阿華田聯名\n品項名稱: 脆酷力薯餅蛋吐司\n價格: 65.0 元\n起司: 1\n套餐: A/B/C/D\n素食: 1\n",
+    "metadata": {
+      "table": "main_menu",
+      "class": "阿華田聯名",
+      "name": "脆酷力薯餅蛋吐司"
+    }
+  },
+  {
+    "page_content": "id: 77\n類別: 阿華田聯名\n品項名稱: 脆酷力脆皮雞腿堡\n價格: 90.0 元\n加蛋: 1\n起司: 1\n套餐: A/B/C/D\n",
+    "metadata": {
+      "table": "main_menu",
+      "class": "阿華田聯名",
+      "name": "脆酷力脆皮雞腿堡"
+    }
+  },
+  {
+    "page_content": "id: 78\n類別: 厚片\n品項名稱: 巧克力\n價格: 30.0 元\n套餐: A/B/C/D\n推薦: 1\n",
+    "metadata": {
+      "table": "main_menu",
+      "class": "厚片",
+      "name": "巧克力"
+    }
+  },
+  {
+    "page_content": "id: 79\n類別: 厚片\n品項名稱: 花生\n價格: 30.0 元\n套餐: A/B/C/D\n素食: 1\n",
+    "metadata": {
+      "table": "main_menu",
+      "class": "厚片",
+      "name": "花生"
+    }
+  },
+  {
+    "page_content": "id: 80\n類別: 厚片\n品項名稱: 香蒜\n價格: 35.0 元\n套餐: A/B/C/D\n",
+    "metadata": {
+      "table": "main_menu",
+      "class": "厚片",
+      "name": "香蒜"
+    }
+  },
+  {
+    "page_content": "id: 81\n類別: 厚片\n品項名稱: 特調奶酥\n價格: 35.0 元\n套餐: A/B/C/D\n素食: 1\n推薦: 1\n",
+    "metadata": {
+      "table": "main_menu",
+      "class": "厚片",
+      "name": "特調奶酥"
+    }
+  },
+  {
+    "page_content": "id: 82\n類別: 厚片\n品項名稱: 抹茶奶酥\n價格: 40.0 元\n套餐: A/B/C/D\n素食: 1\n",
+    "metadata": {
+      "table": "main_menu",
+      "class": "厚片",
+      "name": "抹茶奶酥"
+    }
+  },
+  {
+    "page_content": "id: 83\n類別: 厚片\n品項名稱: 焗烤鮪魚\n價格: 65.0 元\n套餐: A/B/C/D\n推薦: 1\n",
+    "metadata": {
+      "table": "main_menu",
+      "class": "厚片",
+      "name": "焗烤鮪魚"
+    }
+  },
+  {
+    "page_content": "id: 84\n類別: 厚片\n品項名稱: 焗烤燻雞\n價格: 65.0 元\n套餐: A/B/C/D\n",
+    "metadata": {
+      "table": "main_menu",
+      "class": "厚片",
+      "name": "焗烤燻雞"
+    }
+  },
+  {
+    "page_content": "id: 85\n類別: 法國吐司\n品項名稱: 法式芝麻\n價格: 40.0 元\n起司: 1\n套餐: A/B/C/D\n素食: 1\n",
+    "metadata": {
+      "table": "main_menu",
+      "class": "法國吐司",
+      "name": "法式芝麻"
+    }
+  },
+  {
+    "page_content": "id: 86\n類別: 法國吐司\n品項名稱: 法式肉鬆\n價格: 45.0 元\n起司: 1\n套餐: A/B/C/D\n",
+    "metadata": {
+      "table": "main_menu",
+      "class": "法國吐司",
+      "name": "法式肉鬆"
+    }
+  },
+  {
+    "page_content": "id: 87\n類別: 法國吐司\n品項名稱: 法式鮪魚\n價格: 55.0 元\n起司: 1\n套餐: A/B/C/D\n推薦: 1\n",
+    "metadata": {
+      "table": "main_menu",
+      "class": "法國吐司",
+      "name": "法式鮪魚"
+    }
+  },
+  {
+    "page_content": "id: 88\n類別: 總匯\n品項名稱: 原味總匯\n價格: 85.0 元\n套餐: A/B/C/D\n",
+    "metadata": {
+      "table": "main_menu",
+      "class": "總匯",
+      "name": "原味總匯"
+    }
+  },
+  {
+    "page_content": "id: 89\n類別: 總匯\n品項名稱: 鮪魚總匯\n價格: 85.0 元\n套餐: A/B/C/D\n",
+    "metadata": {
+      "table": "main_menu",
+      "class": "總匯",
+      "name": "鮪魚總匯"
+    }
+  },
+  {
+    "page_content": "id: 90\n類別: 總匯\n品項名稱: 燒肉總匯\n價格: 90.0 元\n套餐: A/B/C/D\n推薦: 1\n",
+    "metadata": {
+      "table": "main_menu",
+      "class": "總匯",
+      "name": "燒肉總匯"
+    }
+  },
+  {
+    "page_content": "id: 91\n類別: 總匯\n品項名稱: 脆皮雞腿總匯\n價格: 100.0 元\n套餐: A/B/C/D\n推薦: 1\n",
+    "metadata": {
+      "table": "main_menu",
+      "class": "總匯",
+      "name": "脆皮雞腿總匯"
+    }
+  },
+  {
+    "page_content": "id: 92\n類別: 麵類\n品項名稱: 台式炒泡麵\n價格: 75.0 元\n燒肉: 1\n套餐: A/B/C/D\n推薦: 1\n",
+    "metadata": {
+      "table": "main_menu",
+      "class": "麵類",
+      "name": "台式炒泡麵"
+    }
+  },
+  {
+    "page_content": "id: 93\n類別: 麵類\n品項名稱: 麻辣炒泡麵\n價格: 80.0 元\n燒肉: 1\n套餐: A/B/C/D\n推薦: 1\n",
+    "metadata": {
+      "table": "main_menu",
+      "class": "麵類",
+      "name": "麻辣炒泡麵"
+    }
+  },
+  {
+    "page_content": "id: 94\n類別: 麵類\n品項名稱: 日式炒烏龍麵\n價格: 85.0 元\n燒肉: 1\n套餐: A/B/C/D\n",
+    "metadata": {
+      "table": "main_menu",
+      "class": "麵類",
+      "name": "日式炒烏龍麵"
+    }
+  },
+  {
+    "page_content": "id: 95\n類別: 麵類\n品項名稱: 麻辣燙細麵\n價格: 75.0 元\n燒肉: 1\n套餐: A/B/C/D\n推薦: 1\n",
+    "metadata": {
+      "table": "main_menu",
+      "class": "麵類",
+      "name": "麻辣燙細麵"
+    }
+  },
+  {
+    "page_content": "id: 96\n類別: 義大利麵\n品項名稱: 茄汁肉醬麵\n價格: 75.0 元\n加蛋: 1\n燒肉: 1\n套餐: A/B/C/D\n推薦: 1\n",
+    "metadata": {
+      "table": "main_menu",
+      "class": "義大利麵",
+      "name": "茄汁肉醬麵"
+    }
+  },
+  {
+    "page_content": "id: 97\n類別: 義大利麵\n品項名稱: 奶油培根麵\n價格: 75.0 元\n加蛋: 1\n燒肉: 1\n套餐: A/B/C/D\n推薦: 1\n",
+    "metadata": {
+      "table": "main_menu",
+      "class": "義大利麵",
+      "name": "奶油培根麵"
+    }
+  },
+  {
+    "page_content": "id: 98\n類別: 鍋燒麵\n品項名稱: 鍋燒意麵\n價格: 75.0 元\n起司: 1\n起司牛奶: 1\n套餐: A/B/C/D\n推薦: 1\n",
+    "metadata": {
+      "table": "main_menu",
+      "class": "鍋燒麵",
+      "name": "鍋燒意麵"
+    }
+  },
+  {
+    "page_content": "id: 99\n類別: 鍋燒麵\n品項名稱: 鍋燒雞絲\n價格: 75.0 元\n起司: 1\n起司牛奶: 1\n套餐: A/B/C/D\n",
+    "metadata": {
+      "table": "main_menu",
+      "class": "鍋燒麵",
+      "name": "鍋燒雞絲"
+    }
+  },
+  {
+    "page_content": "id: 100\n類別: 鍋燒麵\n品項名稱: 鍋燒烏龍\n價格: 85.0 元\n起司: 1\n起司牛奶: 1\n套餐: A/B/C/D\n",
+    "metadata": {
+      "table": "main_menu",
+      "class": "鍋燒麵",
+      "name": "鍋燒烏龍"
+    }
+  },
+  {
+    "page_content": "id: 101\n類別: 鍋燒麵\n品項名稱: 經典鍋燒泡麵\n價格: 85.0 元\n套餐: A/B/C/D\n",
+    "metadata": {
+      "table": "main_menu",
+      "class": "鍋燒麵",
+      "name": "經典鍋燒泡麵"
+    }
+  },
+  {
+    "page_content": "id: 102\n類別: QQ捲\n品項名稱: 泰式打拋豬 QQ捲\n價格: 70.0 元\n套餐: A/B/C/D\n",
+    "metadata": {
+      "table": "main_menu",
+      "class": "QQ捲",
+      "name": "泰式打拋豬 QQ捲"
+    }
+  },
+  {
+    "page_content": "id: 103\n類別: QQ捲\n品項名稱: 泰式打拋豬 QQ捲+蘿蔔糕\n價格: 80.0 元\n套餐: A/B/C/D\n",
+    "metadata": {
+      "table": "main_menu",
+      "class": "QQ捲",
+      "name": "泰式打拋豬 QQ捲+蘿蔔糕"
+    }
+  },
+  {
+    "page_content": "id: 104\n類別: QQ捲\n品項名稱: 泰式打拋豬 QQ捲+起司蛋餅\n價格: 85.0 元\n套餐: A/B/C/D\n",
+    "metadata": {
+      "table": "main_menu",
+      "class": "QQ捲",
+      "name": "泰式打拋豬 QQ捲+起司蛋餅"
+    }
+  },
+  {
+    "page_content": "id: 105\n類別: QQ捲\n品項名稱: 法式松露醬 QQ捲\n價格: 70.0 元\n套餐: A/B/C/D\n",
+    "metadata": {
+      "table": "main_menu",
+      "class": "QQ捲",
+      "name": "法式松露醬 QQ捲"
+    }
+  },
+  {
+    "page_content": "id: 106\n類別: QQ捲\n品項名稱: 法式松露醬 QQ捲+蘿蔔糕\n價格: 80.0 元\n套餐: A/B/C/D\n",
+    "metadata": {
+      "table": "main_menu",
+      "class": "QQ捲",
+      "name": "法式松露醬 QQ捲+蘿蔔糕"
+    }
+  },
+  {
+    "page_content": "id: 107\n類別: QQ捲\n品項名稱: 法式松露醬 QQ捲+起司蛋餅\n價格: 85.0 元\n套餐: A/B/C/D\n",
+    "metadata": {
+      "table": "main_menu",
+      "class": "QQ捲",
+      "name": "法式松露醬 QQ捲+起司蛋餅"
+    }
+  },
+  {
+    "page_content": "id: 108\n類別: QQ捲\n品項名稱: 蜂蜜QQ捲\n價格: 60.0 元\n套餐: A/B/C/D\n素食: 1\n",
+    "metadata": {
+      "table": "main_menu",
+      "class": "QQ捲",
+      "name": "蜂蜜QQ捲"
+    }
+  },
+  {
+    "page_content": "id: 109\n類別: 招牌兒童餐\n品項名稱: 兒童綜合拼盤\n價格: 70.0 元\n起司: 1\n套餐: A/B/C/D\n",
+    "metadata": {
+      "table": "main_menu",
+      "class": "招牌兒童餐",
+      "name": "兒童綜合拼盤"
+    }
+  },
+  {
+    "page_content": "id: 110\n類別: 招牌兒童餐\n品項名稱: 晨間香腸拼盤\n價格: 85.0 元\n起司: 1\n套餐: A/B/C/D\n",
+    "metadata": {
+      "table": "main_menu",
+      "class": "招牌兒童餐",
+      "name": "晨間香腸拼盤"
+    }
+  },
+  {
+    "page_content": "id: 111\n類別: 招牌兒童餐\n品項名稱: 鄉村雞柳拼盤\n價格: 90.0 元\n起司: 1\n套餐: A/B/C/D\n",
+    "metadata": {
+      "table": "main_menu",
+      "class": "招牌兒童餐",
+      "name": "鄉村雞柳拼盤"
+    }
+  },
+  {
+    "page_content": "id: 112\n類別: 招牌兒童餐\n品項名稱: 酥炸雞飛狗跳\n價格: 95.0 元\n起司: 1\n套餐: A/B/C/D\n",
+    "metadata": {
+      "table": "main_menu",
+      "class": "招牌兒童餐",
+      "name": "酥炸雞飛狗跳"
+    }
+  },
+  {
+    "page_content": "id: 113\n類別: 單點\n品項名稱: 蘿蔔糕\n價格: 35.0 元\n加蛋: 1\n燒肉: 1\n套餐: 無\n推薦: 1\n",
+    "metadata": {
+      "table": "main_menu",
+      "class": "單點",
+      "name": "蘿蔔糕"
+    }
+  },
+  {
+    "page_content": "id: 114\n類別: 單點\n品項名稱: 蔥抓餅\n價格: 40.0 元\n加蛋: 1\n燒肉: 1\n套餐: 無\n推薦: 1\n",
+    "metadata": {
+      "table": "main_menu",
+      "class": "單點",
+      "name": "蔥抓餅"
+    }
+  },
+  {
+    "page_content": "id: 115\n類別: 單點\n品項名稱: 荷包蛋\n價格: 15.0 元\n套餐: 無\n素食: 1\n",
+    "metadata": {
+      "table": "main_menu",
+      "class": "單點",
+      "name": "荷包蛋"
+    }
+  },
+  {
+    "page_content": "id: 116\n類別: 單點\n品項名稱: 大火腿片 (1片)\n價格: 15.0 元\n套餐: 無\n",
+    "metadata": {
+      "table": "main_menu",
+      "class": "單點",
+      "name": "大火腿片 (1片)"
+    }
+  },
+  {
+    "page_content": "id: 117\n類別: 單點\n品項名稱: 晨間薯餅\n價格: 20.0 元\n套餐: 無\n素食: 1\n推薦: 1\n",
+    "metadata": {
+      "table": "main_menu",
+      "class": "單點",
+      "name": "晨間薯餅"
+    }
+  },
+  {
+    "page_content": "id: 118\n類別: 單點\n品項名稱: 燒肉片\n價格: 25.0 元\n套餐: 無\n",
+    "metadata": {
+      "table": "main_menu",
+      "class": "單點",
+      "name": "燒肉片"
+    }
+  },
+  {
+    "page_content": "id: 119\n類別: 單點\n品項名稱: 小熱狗\n價格: 30.0 元\n套餐: 無\n",
+    "metadata": {
+      "table": "main_menu",
+      "class": "單點",
+      "name": "小熱狗"
+    }
+  },
+  {
+    "page_content": "id: 120\n類別: 單點\n品項名稱: 美式香腸\n價格: 30.0 元\n套餐: 無\n推薦: 1\n",
+    "metadata": {
+      "table": "main_menu",
+      "class": "單點",
+      "name": "美式香腸"
+    }
+  },
+  {
+    "page_content": "id: 121\n類別: 單點\n品項名稱: 薯條\n價格: 35.0 元\n套餐: 無\n素食: 1\n",
+    "metadata": {
+      "table": "main_menu",
+      "class": "單點",
+      "name": "薯條"
+    }
+  },
+  {
+    "page_content": "id: 122\n類別: 單點\n品項名稱: 麥克雞塊 (4塊)\n價格: 35.0 元\n套餐: 無\n推薦: 1\n",
+    "metadata": {
+      "table": "main_menu",
+      "class": "單點",
+      "name": "麥克雞塊 (4塊)"
+    }
+  },
+  {
+    "page_content": "id: 123\n類別: 單點\n品項名稱: 生菜沙拉\n價格: 35.0 元\n套餐: 無\n",
+    "metadata": {
+      "table": "main_menu",
+      "class": "單點",
+      "name": "生菜沙拉"
+    }
+  },
+  {
+    "page_content": "id: 124\n類別: 單點\n品項名稱: 鮮酥魚柳 (3條)\n價格: 40.0 元\n套餐: 無\n推薦: 1\n",
+    "metadata": {
+      "table": "main_menu",
+      "class": "單點",
+      "name": "鮮酥魚柳 (3條)"
+    }
+  },
+  {
+    "page_content": "id: 125\n類別: 單點\n品項名稱: 雞米花\n價格: 40.0 元\n套餐: 無\n",
+    "metadata": {
+      "table": "main_menu",
+      "class": "單點",
+      "name": "雞米花"
+    }
+  },
+  {
+    "page_content": "id: 126\n類別: 單點\n品項名稱: 黃金豬排\n價格: 45.0 元\n套餐: 無\n",
+    "metadata": {
+      "table": "main_menu",
+      "class": "單點",
+      "name": "黃金豬排"
+    }
+  },
+  {
+    "page_content": "id: 127\n類別: 單點\n品項名稱: 脆皮雞腿\n價格: 50.0 元\n套餐: 無\n",
+    "metadata": {
+      "table": "main_menu",
+      "class": "單點",
+      "name": "脆皮雞腿"
+    }
+  },
+  {
+    "page_content": "id: 128\n類別: 單點\n品項名稱: 白松露醬薯條\n價格: 70.0 元\n套餐: 無\n",
+    "metadata": {
+      "table": "main_menu",
+      "class": "單點",
+      "name": "白松露醬薯條"
+    }
+  },
+  {
+    "page_content": "id: A1\n套餐名稱: A\n價格: 35.0 元\n內容物: 晨間薯餅+中杯紅茶(古早)\n",
+    "metadata": {
+      "table": "combo_menu",
+      "class": "套餐",
+      "name": "A"
+    }
+  },
+  {
+    "page_content": "id: A2\n套餐名稱: B\n價格: 50.0 元\n內容物: 薯條+中杯紅茶(古早)\n",
+    "metadata": {
+      "table": "combo_menu",
+      "class": "套餐",
+      "name": "B"
+    }
+  },
+  {
+    "page_content": "id: A3\n套餐名稱: C\n價格: 50.0 元\n內容物: 麥克雞塊+中杯紅茶(古早)\n",
+    "metadata": {
+      "table": "combo_menu",
+      "class": "套餐",
+      "name": "C"
+    }
+  },
+  {
+    "page_content": "id: A4\n套餐名稱: D\n價格: 50.0 元\n內容物: 生菜沙拉+中杯紅茶(古早)\n",
+    "metadata": {
+      "table": "combo_menu",
+      "class": "套餐",
+      "name": "D"
+    }
+  },
+  {
+    "page_content": "id: 1001\n飲品名稱: 古早紅茶\nM中杯: 20.0 元\nL大杯: 30.0 元\n",
+    "metadata": {
+      "table": "drink_item",
+      "class": "特調飲品",
+      "name": "古早紅茶"
+    }
+  },
+  {
+    "page_content": "id: 1002\n飲品名稱: 古早奶茶\nM中杯: 25.0 元\nL大杯: 35.0 元\n",
+    "metadata": {
+      "table": "drink_item",
+      "class": "特調飲品",
+      "name": "古早奶茶"
+    }
+  },
+  {
+    "page_content": "id: 1003\n飲品名稱: 英式奶茶\nM中杯: 25.0 元\nL大杯: 35.0 元\n",
+    "metadata": {
+      "table": "drink_item",
+      "class": "特調飲品",
+      "name": "英式奶茶"
+    }
+  },
+  {
+    "page_content": "id: 1004\n飲品名稱: 鴛鴦綠茶\nM中杯: 25.0 元\nL大杯: 35.0 元\n",
+    "metadata": {
+      "table": "drink_item",
+      "class": "特調飲品",
+      "name": "鴛鴦綠茶"
+    }
+  },
+  {
+    "page_content": "id: 1005\n飲品名稱: 鮮奶茶\nM中杯: 25.0 元\nL大杯: 50.0 元\n",
+    "metadata": {
+      "table": "drink_item",
+      "class": "特調飲品",
+      "name": "鮮奶茶"
+    }
+  },
+  {
+    "page_content": "id: 1006\n飲品名稱: 咖啡牛奶\nM中杯: 35.0 元\nL大杯: 35.0 元\n",
+    "metadata": {
+      "table": "drink_item",
+      "class": "特調飲品",
+      "name": "咖啡牛奶"
+    }
+  },
+  {
+    "page_content": "id: 1007\n飲品名稱: 鮮奶咖啡\nM中杯: 40.0 元\nL大杯: 50.0 元\n",
+    "metadata": {
+      "table": "drink_item",
+      "class": "特調飲品",
+      "name": "鮮奶咖啡"
+    }
+  },
+  {
+    "page_content": "id: 1008\n飲品名稱: 研磨黑咖啡\nM中杯: 45.0 元\nL大杯: None 元\n",
+    "metadata": {
+      "table": "drink_item",
+      "class": "特調飲品",
+      "name": "研磨黑咖啡"
+    }
+  },
+  {
+    "page_content": "id: 1009\n飲品名稱: 拿鐵研磨\nM中杯: 35.0 元\nL大杯: None 元\n",
+    "metadata": {
+      "table": "drink_item",
+      "class": "特調飲品",
+      "name": "拿鐵研磨"
+    }
+  },
+  {
+    "page_content": "id: 1010\n飲品名稱: 豆漿\nM中杯: 25.0 元\nL大杯: 40.0 元\n",
+    "metadata": {
+      "table": "drink_item",
+      "class": "特調飲品",
+      "name": "豆漿"
+    }
+  },
+  {
+    "page_content": "id: 1011\n飲品名稱: 森林莓果茶\nM中杯: 25.0 元\nL大杯: 40.0 元\n",
+    "metadata": {
+      "table": "drink_item",
+      "class": "特調飲品",
+      "name": "森林莓果茶"
+    }
+  },
+  {
+    "page_content": "id: 1012\n飲品名稱: 水果茶\nM中杯: 25.0 元\nL大杯: 40.0 元\n",
+    "metadata": {
+      "table": "drink_item",
+      "class": "特調飲品",
+      "name": "水果茶"
+    }
+  },
+  {
+    "page_content": "id: 1013\n飲品名稱: 無糖桂花青\nM中杯: 20.0 元\nL大杯: 30.0 元\n",
+    "metadata": {
+      "table": "drink_item",
+      "class": "特調飲品",
+      "name": "無糖桂花青"
+    }
+  },
+  {
+    "page_content": "id: 1014\n飲品名稱: 初鹿調味乳(瓶)\nM中杯: 25.0 元\nL大杯: None 元\n",
+    "metadata": {
+      "table": "drink_item",
+      "class": "特調飲品",
+      "name": "初鹿調味乳(瓶)"
+    }
+  }
+]

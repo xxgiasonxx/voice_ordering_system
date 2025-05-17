@@ -27,3 +27,9 @@ def query_combo_menu(conn: sqlite3.Connection, id: str) -> List[Tuple]:
     cur.execute(f"SELECT * FROM combo_menu WHERE id == {id}")
     return cur.fetchall()
 
+def query_name_to_price(conn: sqlite3.Connection, cls: str, name: str) -> List[Tuple]:
+    """Execute a query and return the results."""
+    table = "main_menu" if cls != "特調飲品" else "drink_item"
+    cur = conn.cursor()
+    cur.execute(f"SELECT * FROM {table} WHERE class == '{cls}' AND name == '{name}'")
+    return cur.fetchall()
