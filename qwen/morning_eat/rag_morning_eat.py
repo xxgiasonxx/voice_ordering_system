@@ -5,7 +5,7 @@ from langchain_core.prompts import PromptTemplate
 from langchain_ollama.llms import OllamaLLM
 from langchain_ollama import OllamaEmbeddings
 from langchain_chroma import Chroma
-from CRUD_database import create_connection, query_main_menu, query_combo_menu, query_name_to_price
+from CRUD_database import create_connection, query_drink_menu, query_main_menu, query_combo_menu, query_name_to_price
 from useModel import useModel
 import re
 
@@ -86,7 +86,9 @@ intent: order
 
 def query_db(item_id):
     conn = create_connection()
-    if item_id.isnumeric():
+    if item_id.isnumeric() and int(item_id) > 1000:
+        result = query_drink_menu(conn, item_id)
+    elif item_id.isnumeric():
         result = query_main_menu(conn, item_id)
     else:
         result = query_combo_menu(conn, item_id)
@@ -111,7 +113,8 @@ def change_order(order_state, status, item, quantity, customizations, cus_price 
         print(item)
         print(quantity)
         print(order_state)
-        order_state["total_price"] += int(item['price']) * quantity
+        print()
+        order_state["total_price"] += int(item['subtotal']) * quantity
         print("1231231223123123123333333333333333")
         for existing_item in order_state["items"]:
             print()
@@ -471,7 +474,7 @@ def create_prompt_template():
 
 # 互動式點餐對話
 def interactive_ordering():
-    cus_choice = {"雙蛋": 15, "起司": 10, "泡菜": 10, '燒肉': 20, '起司牛奶': 5, '山型丹麥': 10}
+    cus_choice = {"加蛋": 15, "起司": 10, "泡菜": 10, '燒肉': 20, '起司牛奶': 5, '山型丹麥': 10}
     vectorstore = load_menu_to_vectorstore(name="morning_menu")
     test = vectorstore.similarity_search("我要一份蛋餅", k=10)
     print(f"檢索到 {len(test)} 筆相關菜單")

@@ -21,6 +21,13 @@ def create_connection(db_file: str = "morning_eat.db") -> Optional[sqlite3.Conne
         print(e)
     return conn
 
+def query_drink_menu(conn: sqlite3.Connection, id: str) -> List[Tuple]:
+    """Execute a query and return the results."""
+    conn.row_factory = dict_factory
+    cur = conn.cursor()
+    cur.execute(f"SELECT * FROM drink_item WHERE id == {id}")
+    return cur.fetchall()[0]
+
 def query_main_menu(conn: sqlite3.Connection, id: str) -> List[Tuple]:
     """Execute a query and return the results."""
     conn.row_factory = dict_factory
