@@ -54,28 +54,28 @@ def rag_query(query, vectorstore, order_state, cus_choice):
 
     # 用 Ollama 生成回應
     try:
-        # model = useModel("gemini_api")
+        model = useModel("gemini_api")
 
-        # chain = prompt | model
+        chain = prompt | model
 
-        # response = chain.invoke({'json': ex_json, 'context': context, 'order_state': order_state, 'query': query})
+        response = chain.invoke({'json': ex_json, 'context': context, 'order_state': order_state, 'query': query})
 
-        # if response.content != None:
-        #     response = response.content
+        if response.content != None:
+            response = response.content
         #     print("Ollama 回應：", response)
-        # print(response)
-        # exit()
-        response = '''
-```sys
-intent: order
-+ 19 1 加蛋
-+ 1001 1 大杯
-```
-```cus
-好喔，吐司-奶油加蛋 30 元，特調飲品-古早紅茶大杯 30 元！這樣總共 60 元，還要點些什麼嗎？
-```
-        '''
         print(response)
+        # exit()
+#         response = '''
+# ```sys
+# intent: order
+# + 19 1 加蛋
+# + 1001 1 大杯
+# ```
+# ```cus
+# 好喔，吐司-奶油加蛋 30 元，特調飲品-古早紅茶大杯 30 元！這樣總共 60 元，還要點些什麼嗎？
+# ```
+#         '''
+        # print(response)
 
         # 解析 LLM 回應，更新訂單
         customer_response, new_order_state = parse_llm_response(response, order_state, cus_choice)
@@ -105,21 +105,23 @@ def gen_random_id():
     import random
     return str(random.randint(1000, 9999))
 
-def change_order(order_state, status, item, quantity, customizations, cus_price = 0):
+def deal_with_price(item, cus):
+    if item.get('price', None) is not None:
+        return item['price']
+    if cus == "大杯":
+        return item['L']
+    return item['M']
+
+
+def change_order(order_state, status, item, quantity, customizations = "", cus_price = 0):
     print("餐點解析中")
     if status == "+":
+        item_price = deal_with_price(item, customizations)
         print("新增餐點")
-        print(type(item))
-        print(item)
-        print(quantity)
-        print(order_state)
-        print()
-        order_state["total_price"] += int(item['subtotal']) * quantity
-        print("1231231223123123123333333333333333")
         for existing_item in order_state["items"]:
-            print()
             if existing_item['item_id'] == item['id'] and existing_item['customization']['note'] == customizations:
                 existing_item['quantity'] += quantity
+                order_state['total_price'] += existing_item['subtotal'] * quantity
                 return order_state
         print("新增餐點二")
         order_state["items"].append({
@@ -127,21 +129,22 @@ def change_order(order_state, status, item, quantity, customizations, cus_price 
             "item_id": item['id'],
             "class": item['class'],
             "name": item['name'],
-            "unitPrice": item['price'],
-            "subtotal": item['price'] + cus_price,
+            "unitPrice": item_price,
+            "subtotal": item_price + cus_price,
             "quantity": quantity,
             "customization": {
                 "cus_price": cus_price,
                 "note": customizations,
             }
         })
+        order_state['total_price'] += (item_price + cus_price) * quantity
         return order_state
     elif status == "-":
         for existing_item in order_state["items"]:
-            if existing_item['item_id'] == item['id'] and item['id'] == customizations:
+            if existing_item['id'] == item:
                 quantity_diff = min(quantity, existing_item['quantity'])
                 existing_item['quantity'] -= quantity_diff
-                existing_item['total_price'] -= item['price'] * quantity_diff
+                order_state['total_price'] -= existing_item['subtotal'] * quantity_diff
             if existing_item['quantity'] <= 0:
                 order_state["items"].remove(existing_item)
                 return order_state
@@ -154,6 +157,7 @@ def deal_with_cus(cus, cus_choice):
             cus_price += value
     return cus, cus_price
 def parse_llm_response(response, order_state, cus_choice):
+    print(order_state)
     # 找到sys和cus的區塊
     sys_block = re.search(r"```sys\n(.*?)```", response, re.DOTALL)
     cus_block = re.search(r"```cus\n(.*?)```", response, re.DOTALL)
@@ -178,8 +182,8 @@ def parse_llm_response(response, order_state, cus_choice):
             cus, cus_price = deal_with_cus(cus, cus_choice)
             order_state = change_order(order_state, action, result, int(quantity), cus, cus_price)
         if line.startswith("-"):
-            action, item_id, quantity, cus = line.split()
-            order_state = change_order(order_state, action, result, int(quantity), cus)
+            action, item_id, quantity = line.split()
+            order_state = change_order(order_state, action, item_id, int(quantity))
     print("End parsing sys block")
     # new_cus_content = ""
     # for line in cus_content.split("\n"):
@@ -224,12 +228,12 @@ def create_prompt_template():
     - 從顧客查詢和菜單資訊提取品項，輸出 id 編號及數量。
     - **格式**：
       - **新增**：`+ <id> <數量> <客製化>`（例如 `+ 1 1 無` 表示 id 1 品項 1 份，無客製）。
-      - **取消**：`- <id> <數量> <訂單id>`（例如 `- 1 1 12313` 表示取消訂單中 id 1 品項 1 份）。
+      - **取消**：`- <訂單id> <數量>`（例如 `- 12313 1` 表示取消訂單中 id 1 品項 1 份）。
       - **每行一個動作**，無動作時留空。
       - **客製化**：列出所有客製選項（例如 `雙蛋、起司、泡菜`），若無客製則填 `無`。僅記錄菜單資訊中可用的客製選項（例如雙蛋、起司、泡菜、無糖、去冰、少冰、加糖、中杯、大杯）。
     - **意圖**：
       - **點餐 (order)**：提取品項 id 和數量（例如「我要一份蛋餅」→ `+ 1 1 無`）。
-      - **取消 (cancel)**：識別取消品項（例如「蛋餅不要了」→ `- 1 1 12323`）。
+      - **取消 (cancel)**：識別取消品項（例如「蛋餅不要了」→ `- 12323 1`）。
       - **查詢菜單 (query)**：不輸出 id（例如「有什麼飲料？」）。
       - **確認訂單 (view_cus)**：不輸出 id，僅生成顧客回應。
       - **結束對話 (end)**：不輸出 id，僅生成顧客回應。
@@ -293,7 +297,7 @@ def create_prompt_template():
 
     #### 菜單資訊格式
     - **單點**：
-      - 欄位：id、類別、品項名稱、價格、雙蛋(0=不可選|1=可選)、起司(0=不可選|1=可選)、泡菜(0=不可選|1=可選)、山型丹麥(0=不可選|1=可選)、套餐(A/B/C/D=可選|無=不可選)、素食(0=不可食|1=可食)、推薦(0=普通|1=推薦)。
+      - 欄位：id、類別、品項名稱、價格、雙蛋(0=不可選|1=可選)、起司(0=不可選|1=可選)、泡菜(0=不可選|1=可選)、燒肉(0=不可選|1=可選)、起司牛奶(0=不可選|1=可選)、山型丹麥(0=不可選|1=可選)、套餐(A/B/C/D=可選|無=不可選)、素食(0=不可食|1=可食)、推薦(0=普通|1=推薦)。
       - 範例：
         ```
         id: 1
@@ -329,6 +333,7 @@ def create_prompt_template():
     ```sys
     intent: <intent>
     + <id> <數量> <客製化>
+    - <訂單id> <數量>
     ```
     ```cus
     好喔，台式蛋餅-原味 30 元！要加套餐或啥客製嗎？
@@ -384,7 +389,7 @@ def create_prompt_template():
       ```
       ```sys
       intent: cancel
-      - 1 1 12313
+      - 12313 1
       ```
       ```cus
       好啦，台式蛋餅-原味取消囉！還想吃啥？
@@ -445,14 +450,14 @@ def create_prompt_template():
       ```
 
     10. **查詢**：結束
-        ```
-        ```sys
-        intent: end
-        ```
-        ```cus
-        好啦，訂單確認！馬上幫你弄好，謝謝光臨！
-        ```
-        ```
+      ```
+      ```sys
+      intent: end
+      ```
+      ```cus
+      好啦，訂單確認！馬上幫你弄好，謝謝光臨！
+      ```
+      ```
 
     ---
 
@@ -474,7 +479,7 @@ def create_prompt_template():
 
 # 互動式點餐對話
 def interactive_ordering():
-    cus_choice = {"加蛋": 15, "起司": 10, "泡菜": 10, '燒肉': 20, '起司牛奶': 5, '山型丹麥': 10}
+    cus_choice = {"加蛋": 10, "起司": 10, "泡菜": 10, '燒肉': 20, '起司牛奶': 5, '山型丹麥': 10}
     vectorstore = load_menu_to_vectorstore(name="morning_menu")
     test = vectorstore.similarity_search("我要一份蛋餅", k=10)
     print(f"檢索到 {len(test)} 筆相關菜單")
