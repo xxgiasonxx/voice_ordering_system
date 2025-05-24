@@ -1,38 +1,33 @@
 import icon from '@/assets/icon.png';
+import { Link } from 'react-router-dom';
 
 const QuickOrderWelcome = () => {
   return (
     <div
-      className="relative flex size-full min-h-screen flex-col bg-slate-50 justify-between group/design-root overflow-x-hidden"
+      className="relative flex h-screen flex-col bg-slate-50 justify-between overflow-x-hidden"
       style={{ fontFamily: '"Plus Jakarta Sans", "Noto Sans", sans-serif' }}
     >
-      <div>
-        <div className="@container">
-          <div className="@[48px]:px-4 @[48px]:py-3">
-            {/* <div
-              className="w-full bg-center bg-no-repeat bg-cover flex flex-col justify-end overflow-hidden bg-slate-50 @[480px]:rounded-xl min-h-80"
-              style={{ backgroundImage: 'url("https://lh3.googleusercontent.com/aida-public/AB6AXuAI3GI4ycX_8g24o0cctxes0ZPk-LyLhu1rj2KZWcF2UAC4bkgjm7btbdaY2j_BBuiGwn_CYZm81epV5em3gNX-jvRzEe0C8K9I1GdQcICYEc2HMsCX8FtOE4_reVLjkXzCzid2uB4Jvih869Tbg9U3unigV0i9ePqhNHwXCoLr0SzNLQx_ww5gijADD11khIYhfRfbnDzHEEHnvIYE4us35y81EMf2m02FOq98QCG6dXhVKCkQ17W6m-v7zAWRiggIwS8Yy3Fjj6k")' }}
-            > */}
-                <img src={icon} alt="" />
-            {/* </div> */}
-          </div>
+      <div className="flex-1 flex flex-col justify-center items-center px-6 py-8">
+        <div className="mb-8">
+          <img src={icon} alt="" className="w-48 h-48 mx-auto" />
         </div>
-        <h2 className="text-[#0d141c] tracking-light text-[28px] font-bold leading-tight px-4 text-center pb-3 pt-5">
+        
+        <h2 className="text-[#0d141c] text-2xl font-bold leading-tight text-center mb-4">
           歡迎來到語音點餐系統!
         </h2>
-        <p className="text-[#0d141c] text-base font-normal leading-normal pb-3 pt-1 px-4 text-center">
-          使用語音點餐系統，讓您輕鬆點餐，無需手動輸入菜單
+        
+        <p className="text-[#0d141c] text-base font-normal leading-normal text-center max-w-sm">
+          使用語音點餐系統，讓您輕鬆點餐無需手動輸入菜單
         </p>
       </div>
-      <div>
-        <div className="flex px-4 py-3">
-          <button
-            className="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-xl h-12 px-5 flex-1 bg-[#0c7ff2] text-slate-50 text-base font-bold leading-normal tracking-[0.015em]"
-          >
-            <span className="truncate">開始點餐</span>
-          </button>
-        </div>
-        <div className="h-5 bg-slate-50"></div>
+
+      <div className="px-6 pb-8">
+        <Link
+          to="/choice"
+          className="flex items-center justify-center w-full h-14 bg-[#50b3ea] text-white text-base font-bold rounded-xl hover:bg-[#78cbf3] active:bg-[#faaf52] transition-colors duration-200 shadow-md"
+        >
+          開始點餐
+        </Link>
       </div>
     </div>
   );

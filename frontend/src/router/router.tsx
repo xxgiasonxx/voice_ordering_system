@@ -1,19 +1,47 @@
 import { createBrowserRouter } from "react-router-dom";
-import ErrorPage from "../pages/Error";
-import Homepage from "../pages/Home";
+import Error from "../pages/Error";
+import Home from "../pages/Home";
+import Choice from "../pages/Choice";
+import Menu from "../pages/Menu";
+import VoiceOrder from "../pages/VoiceOrder";
+import OrderState from "../pages/OrderState"
+import OrderView from "../pages/OrderView";
+import Payment from "../pages/Payment";
 
 export const router = createBrowserRouter([
   {
     path: "/",
-    element: <Homepage />,
-    errorElement: <ErrorPage />,
+    element: <Home />,
+    errorElement: <Error />,
   },
   {
-    path: "/products",
-    element: <p> Welcome to the Products Page</p>,
+    path: "/choice",
+    element: <Choice />, // Assuming Home is the welcome page
+    errorElement: <Error />,
   },
   {
-    path: "/user",
-    element: <p> Welcome to the User Page</p>,
+    path: "/menu",
+    element: <Menu />,
+    errorElement: <Error />,
+  },
+  {
+    path: "/voiceorder",
+    element: <VoiceOrder />,
+    errorElement: <Error />,
+  },
+  {
+    path: "/orderstate",
+    element: <OrderState />,
+    errorElement: <Error />,
+  },
+  {
+    path: "/orderview",
+    element: <OrderView />,
+    errorElement: <Error />,
+  },
+  {
+    path: "/payment",
+    element: <Payment />,
+    errorElement: <Error />,
   },
 ]);
