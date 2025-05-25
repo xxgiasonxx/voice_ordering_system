@@ -1,32 +1,8 @@
-import { Link } from 'react-router-dom';
-import { useState, useEffect, useRef } from 'react';
 import menuImageUrl from "../assets/176172344.jpg"
-import icon from '@/assets/icon.png';
-
-const ArrowLeftIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
-    <svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" fill="currentColor" viewBox="0 0 256 256" {...props}>
-        <path d="M224,128a8,8,0,0,1-8,8H59.31l58.35,58.34a8,8,0,0,1-11.32,11.32l-72-72a8,8,0,0,1,0-11.32l72-72a8,8,0,0,1,11.32,11.32L59.31,120H216A8,8,0,0,1,224,128Z"></path>
-    </svg>
-);
-
-const SendIcon = () => (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M2 21L23 12L2 3V10L17 12L2 14V21Z" fill="currentColor"/>
-    </svg>
-);
-
-const CloseIcon = () => (
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-    </svg>
-);
-
-const MicIcon = () => (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M12 2C10.34 2 9 3.34 9 5V11C9 12.66 10.34 14 12 14C13.66 14 15 12.66 15 11V5C15 3.34 13.66 2 12 2Z" fill="currentColor"/>
-        <path d="M19 11C19 15.42 15.42 19 11 19V21H13V23H11H9V21H11V19C6.58 19 3 15.42 3 11H5C5 14.31 7.69 17 11 17C14.31 17 17 14.31 17 11H19Z" fill="currentColor"/>
-    </svg>
-);
+import Logo from '@/assets/Logo.png';
+import Header from '@/components/Header';
+import { useState, useEffect, useRef } from 'react';
+import { SendIcon, CloseIcon, MicIcon } from '@/components/Icon';
 
 interface ChatMessage {
     id: number;
@@ -94,15 +70,7 @@ function VoiceOrderScreen() {
 
     return (
         <div className="relative flex h-screen flex-col bg-white overflow-hidden">
-            {/* Header - Mobile Optimized */}
-            <div className="flex items-center bg-white px-3 py-2 justify-between sticky top-0 z-30 shadow-sm border-b border-gray-200 min-h-[56px]">
-                <div className="text-black flex size-10 shrink-0 items-center justify-center rounded-full hover:bg-gray-100 transition-colors">
-                    <Link to="/choice">
-                        <ArrowLeftIcon />
-                    </Link>
-                </div>
-                <h2 className="text-black text-lg font-bold tracking-tight flex-1 text-center pr-10">語音點餐助手</h2>
-            </div>
+            <Header to="/choice" name="語音點餐" />
 
             {/* Voice Status Indicator - Mobile Optimized */}
             {isListening && (
@@ -197,7 +165,7 @@ function VoiceOrderScreen() {
                         <div className="flex items-center justify-between p-4 border-b border-gray-200 bg-[#50b4ea] text-white">
                             <div className="flex items-center space-x-3">
                                 <div className="w-10 h-10 bg-white bg-opacity-20 rounded-xl flex items-center justify-center">
-                                    <img src={icon} alt="Logo" className="w-6 h-6 rounded-lg" />
+                                    <img src={Logo} alt="Logo" className="w-6 h-6 rounded-lg" />
                                 </div>
                                 <div>
                                     <h3 className="text-lg font-bold">點餐助手</h3>
@@ -228,7 +196,7 @@ function VoiceOrderScreen() {
                                     >
                                         {message.type === 'bot' && (
                                             <div className="flex items-center mb-2">
-                                                <img src={icon} alt="Logo" className="w-5 h-5 rounded-lg" />
+                                                <img src={Logo} alt="Logo" className="w-5 h-5 rounded-lg" />
                                                 <span className="text-xs text-gray-600 ml-2 font-semibold">點餐助手</span>
                                             </div>
                                         )}

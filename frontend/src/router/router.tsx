@@ -7,6 +7,7 @@ import VoiceOrder from "../pages/VoiceOrder";
 import OrderState from "../pages/OrderState"
 import OrderView from "../pages/OrderView";
 import Payment from "../pages/Payment";
+import SpeechToText from "../pages/test";
 
 export const router = createBrowserRouter([
   {
@@ -44,4 +45,9 @@ export const router = createBrowserRouter([
     element: <Payment />,
     errorElement: <Error />,
   },
+  {
+    path: "/test",
+    element: <SpeechToText />,
+    errorElement: <Error />,
+  }
 ]);

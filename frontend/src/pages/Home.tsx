@@ -1,4 +1,4 @@
-import icon from '@/assets/icon.png';
+import icon from '@/assets/Logo.png';
 import { Link } from 'react-router-dom';
 
 const QuickOrderWelcome = () => {
