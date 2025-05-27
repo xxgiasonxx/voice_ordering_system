@@ -1,24 +1,36 @@
-from flask import Flask
-from flask_session import Session
-from flask_cors import CORS
+import uvicorn
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+from starlette.middleware.sessions import SessionMiddleware
 import os
 from blueprint.order import order
 from blueprint.session import auth
 
-# 初始化 Flask 應用
-app = Flask(__name__)
-app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', "your_secret_key_here")
-app.config['PERMANENT_SESSION_LIFETIME'] = int(os.getenv('PERMANENT_SESSION_LIFETIME', 3600))
-app.config['SESSION_TYPE'] = os.getenv('SESSION_TYPE', 'filesystem')
-app.config['SESSION_COOKIE_NAME'] = os.getenv('SESSION_COOKIE_NAME', 'session')
-app.config['SESSION_COOKIE_HTTPONLY'] = True
-CORS(app, origins=["http://localhost:5173"], supports_credentials=True)  # 允許跨域請求
-Session(app)
+# 初始化 FastAPI 應用
+app = FastAPI()
 
-# router
-app.register_blueprint(order, url_prefix='/')
-app.register_blueprint(auth, url_prefix='/auth')
+# 添加 Session 中間件
+app.add_middleware(
+    SessionMiddleware,
+    secret_key=os.getenv('SECRET_KEY', "your_secret_key_here"),
+    max_age=int(os.getenv('PERMANENT_SESSION_LIFETIME', 3600)),
+    session_cookie=os.getenv('SESSION_COOKIE_NAME', 'session'),
+    https_only=False,
+    same_site="lax"
+)
 
+# 添加 CORS 中間件
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:5173"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# 包含路由
+app.include_router(order, prefix="")
+app.include_router(auth, prefix="/auth")
 
 if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0', port=5000)
+    uvicorn.run(app, host='0.0.0.0', port=5000, debug=True)
