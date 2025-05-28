@@ -58,5 +58,5 @@ def init_order_state():
 cus_choice = {"加蛋": 10, "起司": 10, "泡菜": 10, '燒肉': 20, '起司牛奶': 5, '山型丹麥': 10}
 embedding_model = init_embedding()
 vectorstore = load_menu_to_vectorstore(persist_directory=os.getenv('CHROMADB_PATH'), name="morning_menu", embedding_model=embedding_model)
-conn = create_connection(db_file=os.getenv('DB_PATH', "morning_eat.db"))
+conn = create_connection(db_file=os.getenv('DB_PATH', "./db/database.db"))
 # rag_template, _ = create_prompt_template()

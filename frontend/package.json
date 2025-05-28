@@ -10,8 +10,6 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@tailwindcss/vite": "^4.1.7",
-    "@types/react-speech-recognition": "^3.9.6",
     "axios": "^1.9.0",
     "react": "^19.1.0",
     "react-cookie": "^8.0.1",
@@ -22,9 +20,11 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.25.0",
+    "@tailwindcss/vite": "^4.1.7",
     "@types/node": "^22.15.21",
     "@types/react": "^19.1.2",
     "@types/react-dom": "^19.1.2",
+    "@types/react-speech-recognition": "^3.9.6",
     "@vitejs/plugin-react": "^4.4.1",
     "autoprefixer": "^10.4.21",
     "eslint": "^9.25.0",

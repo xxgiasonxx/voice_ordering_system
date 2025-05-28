@@ -8,8 +8,10 @@ import OrderState from "../pages/OrderState"
 import OrderView from "../pages/OrderView";
 import Payment from "../pages/Payment";
 import SpeechToText from "../pages/test";
+// import { InitOrderState } from "../protect/InitOrderState";
 
 export const router = createBrowserRouter([
+
   {
     path: "/",
     element: <Home />,

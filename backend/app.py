@@ -2,22 +2,13 @@ import uvicorn
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from starlette.middleware.sessions import SessionMiddleware
-import os
 from blueprint.order import order
 from blueprint.session import auth
+from blueprint.audio import audio
+import os
 
 # 初始化 FastAPI 應用
 app = FastAPI()
-
-# 添加 Session 中間件
-app.add_middleware(
-    SessionMiddleware,
-    secret_key=os.getenv('SECRET_KEY', "your_secret_key_here"),
-    max_age=int(os.getenv('PERMANENT_SESSION_LIFETIME', 3600)),
-    session_cookie=os.getenv('SESSION_COOKIE_NAME', 'session'),
-    https_only=False,
-    same_site="lax"
-)
 
 # 添加 CORS 中間件
 app.add_middleware(
@@ -28,9 +19,23 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# 添加 Session 中間件
+app.add_middleware(
+    SessionMiddleware,
+    secret_key=os.getenv('SECRET_KEY', "your_secret_key_here"),
+    max_age=int(os.getenv('PERMANENT_SESSION_LIFETIME', 3600)),
+    session_cookie=os.getenv('SESSION_COOKIE_NAME', 'order_session'),
+    https_only=os.getenv("HTTPS_ONLY", "false").lower() == "true",
+    same_site="lax"
+)
+
+
+
+
 # 包含路由
-app.include_router(order, prefix="")
+app.include_router(order, prefix="/order")
 app.include_router(auth, prefix="/auth")
+app.include_router(audio)
 
 if __name__ == '__main__':
     uvicorn.run(app, host='0.0.0.0', port=5000, debug=True)

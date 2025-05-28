@@ -1,22 +1,14 @@
-from fastapi import APIRouter, HTTPException, Depends, Request, status
-from fastapi.responses import JSONResponse
-from fastapi.encoders import jsonable_encoder
+from fastapi import APIRouter, HTTPException, UploadFile, File, Request
 from setup import init_order_state
+
+
 
 auth = APIRouter()
 
-# Session management
-def get_session(request: Request):
-    if not hasattr(request.state, 'session'):
-        request.session = {}
-    return request.session
-
-@auth.get('/setorder')
-def set_order_state(request: Request):
+async def set_order_state(request: Request):
+    if "cus_id" not in request.session:
+        import uuid
+        request.session["cus_id"] = str(uuid.uuid4())
     if 'order_state' not in request.session:
-        request.session['order_state'] = jsonable_encoder(init_order_state())
-    response = {
-        "msg": "Order state initialized",
-        "order_state": jsonable_encoder(request.session['order_state'])
-    }
-    return JSONResponse(content=jsonable_encoder(response), status_code=status.HTTP_200_OK)
+        request.session['order_state'] = init_order_state()
+
