@@ -5,6 +5,7 @@ from starlette.middleware.sessions import SessionMiddleware
 from blueprint.order import order
 from blueprint.session import auth
 from blueprint.audio import audio
+from blueprint.orderSocket import audioWS
 import os
 
 # 初始化 FastAPI 應用
@@ -36,6 +37,7 @@ app.add_middleware(
 app.include_router(order, prefix="/order")
 app.include_router(auth, prefix="/auth")
 app.include_router(audio)
+app.include_router(audioWS)
 
 if __name__ == '__main__':
     uvicorn.run(app, host='0.0.0.0', port=5000, debug=True)
