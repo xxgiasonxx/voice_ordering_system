@@ -4,12 +4,10 @@ from pydantic import BaseModel
 from typing import Optional
 from rag.rag_morning_eat import order_real_time
 from setup import cus_choice, vectorstore, conn
-from blueprint.session import set_order_state
 
 # Create APIRouter instead of Blueprint
 order = APIRouter(
     tags=["ordering"],
-    dependencies=[Depends(set_order_state)]
 )
 
 # Pydantic model for request body
