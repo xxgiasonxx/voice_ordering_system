@@ -78,10 +78,10 @@ def change_order(order_state, status, item, quantity, customizations = "", cus_p
                 order_state['total_price'] += existing_item['subtotal'] * quantity
                 return order_state
         order_state["items"].append({
-            "id": str(item['id']) + gen_random_id(),
-            "item_id": item['id'],
-            "class": item['class'],
-            "name": item['name'],
+            "id": str(item.get('id', "未知")) + gen_random_id(),
+            "item_id": item.get('id', "未知"),
+            "class": item.get('class', '套餐'),
+            "name": item.get('name', '未知'),
             "unitPrice": item_price,
             "subtotal": item_price + cus_price,
             "quantity": quantity,
@@ -159,7 +159,7 @@ def create_prompt_template():
           "status": "ongoing"
     }
     template = '''
-    你是一個晨間廚房早餐店店員，負責幫顧客快速點餐、確認訂單、回答菜單問題，態度要親切、熱情，像在台灣早餐店櫃檯服務一樣！你的任務是根據顧客的自然語言查詢、菜單資訊和當前訂單狀態，生成兩部分純文字回應：
+    你是一個晨間廚房早餐店店員，負責幫顧客快速點餐、確認訂單、回答菜單問題，態度要親切、熱情，像在台灣早餐店櫃檯服務一樣！用戶可能因語音辨識錯誤，你要自己想辦法猜回來，嘗試用語音角度理解可能的正確詞彙，你的任務是根據顧客的自然語言查詢、菜單資訊和當前訂單狀態，生成兩部分純文字回應：
     1. **給系統**：這輪顧客點了什麼或刪除了什麼品項的 id 編號及數量，以及客製化內容。
     2. **給顧客**：親切的台灣口語回應，包含完整品項名稱、價格（用 OO 元標示）、客製等。
 
@@ -179,7 +179,7 @@ def create_prompt_template():
       - **取消 (cancel)**：識別取消品項（例如「蛋餅不要了」→ `- 12323 1`）。
       - **查詢菜單 (query)**：不輸出 id（例如「有什麼飲料？」）。
       - **確認訂單 (view_cus)**：不輸出 id，僅生成顧客回應。
-      - **結束對話 (end)**：不輸出 id，僅生成顧客回應。
+      - **結束對話 (end)**：不輸出 id，僅生成顧客回應、不要輸出訂單。
       - **找不到品項 (unknown)**：輸出 `系統：無對應品項`。
     - **數量處理**：
       - 未明確數量（例如「我要蛋餅」），假設 1 份。

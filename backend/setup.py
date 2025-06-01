@@ -60,17 +60,29 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 logger = logging.getLogger(__name__)
 
 cus_choice = {"加蛋": 10, "起司": 10, "泡菜": 10, '燒肉': 20, '起司牛奶': 5, '山型丹麥': 10}
-embedding_model = init_embedding()
-logger.info("embedding model initialized")
-vectorstore = load_menu_to_vectorstore(persist_directory=os.getenv('CHROMADB_PATH'), name="morning_menu", embedding_model=embedding_model)
-conn = create_connection(db_file=os.getenv('DB_PATH', "./db/database.db"))
-logger.info("vectorstore and database connection initialized")
+try:
+    embedding_model = init_embedding()
+    logger.info("embedding model initialized")
+except Exception as e:
+    logger.error(f"Failed to initialize embedding model: {e}")
+    raise e
+try:
+    vectorstore = load_menu_to_vectorstore(persist_directory=os.getenv('CHROMADB_PATH'), name="morning_menu", embedding_model=embedding_model)
+    conn = create_connection(db_file=os.getenv('DB_PATH', "./db/database.db"))
+    logger.info("vectorstore and database connection initialized")
+except Exception as e:
+    logger.error(f"Failed to initialize vectorstore or database connection: {e}")
+    raise e
 # rag_template, _ = create_prompt_template()
-redis_client = redis.Redis(
-    host=os.getenv('REDIS_HOST', 'localhost'),
-    port=int(os.getenv('REDIS_PORT', 6379)),
-    db=int(os.getenv('REDIS_DB', 0)),
-    password=os.getenv('REDIS_PASSWORD', None)
-)
-redis_client.ping()  # 確認 Redis 連線是否成功
-logger.info("redis client initialized")
+try:
+    redis_client = redis.Redis(
+        host=os.getenv('REDIS_HOST', 'localhost'),
+        port=int(os.getenv('REDIS_PORT', 6379)),
+        db=int(os.getenv('REDIS_DB', 0)),
+        password=os.getenv('REDIS_PASSWORD', None)
+    )
+    redis_client.ping()  # 確認 Redis 連線是否成功
+    logger.info("redis client initialized")
+except redis.ConnectionError as e:
+    logger.error(f"Redis connection failed: {e}")
+    raise e

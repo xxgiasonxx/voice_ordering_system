@@ -87,10 +87,13 @@ def rag_query(query, vectorstore, order_state, cus_choice):
 def query_db(item_id):
     conn = create_connection()
     if item_id.isnumeric() and int(item_id) > 1000:
+        print("查詢飲品菜單")
         result = query_drink_menu(conn, item_id)
     elif item_id.isnumeric():
+        print("查詢主餐菜單")
         result = query_main_menu(conn, item_id)
     else:
+        print("查詢套餐菜單")
         result = query_combo_menu(conn, item_id)
     conn.close()
     return result
@@ -125,10 +128,10 @@ def change_order(order_state, status, item, quantity, customizations = "", cus_p
                 return order_state
         print("新增餐點二")
         order_state["items"].append({
-            "id": str(item['id']) + gen_random_id(),
-            "item_id": item['id'],
-            "class": item['class'],
-            "name": item['name'],
+            "id": str(item.get('id', "未知")) + gen_random_id(),
+            "item_id": item.get('id', "未知"),
+            "class": item.get('class', '套餐'),
+            "name": item.get('name', '未知'),
             "unitPrice": item_price,
             "subtotal": item_price + cus_price,
             "quantity": quantity,
@@ -236,7 +239,7 @@ def create_prompt_template():
       - **取消 (cancel)**：識別取消品項（例如「蛋餅不要了」→ `- 12323 1`）。
       - **查詢菜單 (query)**：不輸出 id（例如「有什麼飲料？」）。
       - **確認訂單 (view_cus)**：不輸出 id，僅生成顧客回應。
-      - **結束對話 (end)**：不輸出 id，僅生成顧客回應。
+      - **結束對話 (end)**：不輸出 id，僅生成顧客回應、不要輸出訂單。
       - **找不到品項 (unknown)**：輸出 `系統：無對應品項`。
     - **數量處理**：
       - 未明確數量（例如「我要蛋餅」），假設 1 份。

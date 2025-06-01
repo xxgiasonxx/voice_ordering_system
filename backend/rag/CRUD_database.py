@@ -39,7 +39,7 @@ def query_combo_menu(conn: sqlite3.Connection, id: str) -> List[Tuple]:
     """Execute a query and return the results."""
     conn.row_factory = dict_factory
     cur = conn.cursor()
-    cur.execute(f"SELECT * FROM combo_menu WHERE id == {id}")
+    cur.execute(f"SELECT * FROM combo_menu WHERE id = '{id}'")
     return cur.fetchall()[0]
 
 def query_name_to_price(conn: sqlite3.Connection, cls: str, name: str) -> List[Tuple]:
