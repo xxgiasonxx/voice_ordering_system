@@ -1,5 +1,5 @@
 # 使用官方的 Python 映像檔
-FROM python:3.11.11-slim-buster
+FROM python:3.11.11
 
 # 設定工作目錄
 WORKDIR /app/backend
