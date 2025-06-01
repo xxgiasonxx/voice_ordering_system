@@ -326,7 +326,7 @@ export const LiveTranscription: React.FC = () => {
               setIsConnected(false);
               console.log('Transcription ended - redirecting to orders');
               // 直接跳轉到訂單頁面，不再重連
-              window.location.href = '/OrderView';
+              window.location.href = '/orderview';
               break;
               
             default:
