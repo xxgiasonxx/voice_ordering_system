@@ -31,7 +31,6 @@ services:
     environment:
       # 如果您的後端需要任何環境變數，可以在這裡設定
       # 例如：DATABASE_URL: postgresql://user:password@db:5432/mydb
-      PYTHONUNBUFFERED: 1 # 確保 Python 日誌即時輸出
       SECRET_KEY: "YourSecretKeyHere"  # Replace with your actual secret key !!important!!
       FERNET_KEY: "YourFernetKeyHere"  # Replace with your actual Fernet key !!important!!
       ALGORITHM: HS256 # JWT algorithm
