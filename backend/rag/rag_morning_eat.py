@@ -16,7 +16,7 @@ def init_order_state():
     }
 
 # RAG 檢索 + LLM 生成回應 + 解析訂單
-def rag_query(query, vectorstore, order_state, cus_choice, conn):
+def rag_query(query, conversation_history, vectorstore, order_state, cus_choice, conn):
     # 檢索相關菜單
     try:
         docs = vectorstore.similarity_search(query, k=50)
@@ -33,7 +33,7 @@ def rag_query(query, vectorstore, order_state, cus_choice, conn):
 
         chain = prompt | model
 
-        response = chain.invoke({'json': ex_json, 'context': context, 'order_state': order_state, 'query': query})
+        response = chain.invoke({'json': ex_json, 'history': conversation_history, 'context': context, 'order_state': order_state, 'query': query})
 
         if response.content != None:
             response = response.content
@@ -178,7 +178,7 @@ def create_prompt_template():
       - **點餐 (order)**：提取品項 id 和數量（例如「我要一份蛋餅」→ `+ 1 1 無`）。
       - **取消 (cancel)**：識別取消品項（例如「蛋餅不要了」→ `- 12323 1`）。
       - **查詢菜單 (query)**：不輸出 id（例如「有什麼飲料？」）。
-      - **確認訂單 (view_cus)**：不輸出 id，僅生成顧客回應。
+      - **確認訂單 (view_cus)**：不輸出 id，僅生成顧客回應，確認一次就好，如果顧客說確定就跳結束對話。
       - **結束對話 (end)**：不輸出 id，僅生成顧客回應、不要輸出訂單。
       - **找不到品項 (unknown)**：輸出 `系統：無對應品項`。
     - **數量處理**：
@@ -407,6 +407,9 @@ def create_prompt_template():
     ### 當前訂單狀態（JSON 格式）
     {json}
 
+    ### 對話紀錄 (JSON 格式)
+    {history}
+
     ### 開始吧！
     根據顧客查詢、菜單資訊和訂單狀態，生成給系統的 id 編號及數量，以及給顧客的親切回應！
     - **菜單資訊**: {context}
@@ -416,11 +419,11 @@ def create_prompt_template():
       '''
     prompt = PromptTemplate(
         template=template,
-        input_variables=["json", "context", "order_state", "query"]
+        input_variables=["json", "history", "context", "order_state", "query"]
     )
     return prompt, example_json
 
-def order_real_time(query: str, vectorstore, order_state, cus_choice, conn):
+def order_real_time(query: str, conversation_history, vectorstore, order_state, cus_choice, conn):
     cus_choice = {"加蛋": 10, "起司": 10, "泡菜": 10, '燒肉': 20, '起司牛奶': 5, '山型丹麥': 10}
-    response, order_state = rag_query(query, vectorstore, order_state, cus_choice, conn)
+    response, order_state = rag_query(query, conversation_history, vectorstore, order_state, cus_choice, conn)
     return response, order_state

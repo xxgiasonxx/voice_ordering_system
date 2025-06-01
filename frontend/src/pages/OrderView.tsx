@@ -1,95 +1,178 @@
 import { XIcon } from '@/components/Icon'
+import axios from 'axios';
+import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 
-// Sample data for order items
-// In a real application, this data would likely come from props, context, or a state management solution.
-const orderItemsData = [
-  { name: '炒飯', quantity: 1, price: '$10' },
-  { name: '清潤的水', quantity: 1, price: '$2' },
-  { name: '可樂', quantity: 1, price: '$2' },
-  { name: '柳橘汁', quantity: 1, price: '$3' },
-  { name: '果汁', quantity: 1, price: '$3' },
-  { name: '咖啡', quantity: 1, price: '$3' },
-  { name: '咖啡', quantity: 1, price: '$3' },
-];
+// Define types for better type safety
+interface Customization {
+  cus_price: number;
+  note: string;
+}
+
+interface OrderItem {
+  id: string;
+  item_id: number | string;
+  class: string;
+  name: string;
+  unitPrice: number;
+  subtotal: number;
+  quantity: number;
+  customization: Customization;
+}
+
+interface ApiResponse {
+  order_state: {
+    items: OrderItem[];
+  };
+}
+
+
+
+const SeeOrderAPI = async (): Promise<ApiResponse> => {
+  const baseURL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
+  const response = await axios.get<ApiResponse>(`${baseURL}/see_order`, {
+    withCredentials: true,
+  });
+  
+  if (response.status !== 200) {
+    throw new Error('Failed to fetch order items');
+  }
+  
+  return response.data;
+};
 
 // Component for a single order item
-const OrderItem = ({ name, quantity, price }: { name: string; quantity: number; price: string }) => (
-  <div className="flex items-center gap-4 bg-slate-50 px-4 min-h-[72px] py-2 justify-between">
-    <div className="flex flex-col justify-center overflow-hidden"> {/* Added overflow-hidden for line-clamp to work effectively with flex parents */}
-      <p className="text-[#0d141c] text-base font-medium leading-normal line-clamp-1">{name}</p>
-      <p className="text-[#49739c] text-sm font-normal leading-normal line-clamp-2">{quantity}</p>
+const OrderItemComponent = ({ item }: { item: OrderItem }) => (
+  <div className="flex items-center gap-3 sm:gap-4 bg-white rounded-lg shadow-sm mx-4 px-4 sm:px-6 min-h-[72px] sm:min-h-[80px] py-4 justify-between mb-3">
+    <div className="flex flex-col justify-center overflow-hidden flex-1 min-w-0">
+      <p className="text-[#0d141c] text-sm sm:text-base font-medium leading-normal line-clamp-1">
+        {item.class} - {item.name}
+      </p>
+      <p className="text-[#49739c] text-xs sm:text-sm font-normal leading-normal line-clamp-2 mt-1">
+        數量: {item.quantity} | 單價: ${item.unitPrice}
+      </p>
+      {item.customization.note !== "無" && (
+        <p className="text-[#49739c] text-xs sm:text-sm font-normal leading-normal line-clamp-2 mt-1">
+          客製化: {item.customization.note} (+${item.customization.cus_price})
+        </p>
+      )}
     </div>
-    <div className="shrink-0">
-      <p className="text-[#0d141c] text-base font-normal leading-normal">{price}</p>
+    <div className="shrink-0 ml-3">
+      <p className="text-[#0d141c] text-sm sm:text-base font-semibold leading-normal whitespace-nowrap">
+        ${item.subtotal}
+      </p>
     </div>
   </div>
 );
 
-function OrderSummaryScreen() {
-  // Notes for Vite + React + Tailwind CSS setup:
-  // 1. Font links (Google Fonts) are typically placed in `public/index.html` or imported in `src/index.css`.
-  // 2. The Tailwind CSS CDN script is replaced by installing Tailwind as a dev dependency and configuring it.
-  // 3. `<title>` and favicon `<link>` go into `public/index.html`.
-  // 4. The `line-clamp-*` classes require the `@tailwindcss/line-clamp` plugin.
-  //    Install it: `npm install -D @tailwindcss/line-clamp`
-  //    And add it to your `tailwind.config.js` plugins array: `require('@tailwindcss/line-clamp')`
+const LoadingSpinner = () => (
+  <div className="flex justify-center items-center py-12 px-4">
+    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+    <span className="ml-3 text-gray-600">載入中...</span>
+  </div>
+);
 
-  // Calculate total or other summary details if needed
-  // For example:
-  // const subtotal = orderItemsData.reduce((sum, item) => {
-  //   return sum + parseFloat(item.price.substring(1)) * item.quantity;
-  // }, 0);
-  // const tax = subtotal * 0.05; // Example tax
-  // const total = subtotal + tax;
+const EmptyState = () => (
+  <div className="text-center py-12 px-4 text-gray-500">
+    <p className="text-lg">目前沒有訂單項目</p>
+  </div>
+);
+
+function OrderSummaryScreen() {
+  const [orderItems, setOrderItems] = useState<OrderItem[]>([]);
+  const [total, setTotal] = useState(0);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchOrderItems = async () => {
+      try {
+        setIsLoading(true);
+        setError(null);
+        const response = await SeeOrderAPI();
+        setOrderItems(response.order_state.items || []);
+      } catch (error) {
+        console.error('Error loading order items:', error);
+        setError('載入訂單失敗，使用預設資料');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchOrderItems();
+  }, []);
+
+  useEffect(() => {
+    const calculatedTotal = orderItems.reduce((sum, item) => sum + item.subtotal, 0);
+    setTotal(calculatedTotal);
+  }, [orderItems]);
+
+
+  const renderContent = () => {
+    if (isLoading) {
+      return <LoadingSpinner />;
+    }
+
+    if (error) {
+      return (
+        <div className="text-center py-6 px-4">
+          <p className="text-red-500 mb-2">{error}</p>
+        </div>
+      );
+    }
+
+    if (orderItems.length === 0) {
+      return <EmptyState />;
+    }
+
+    return (
+      <div className="py-4">
+        {orderItems.map((item) => (
+          <OrderItemComponent key={item.id} item={item} />
+        ))}
+      </div>
+    );
+  };
 
   return (
     <div
       className="relative flex size-full min-h-screen flex-col bg-slate-50 justify-between group/design-root overflow-x-hidden"
       style={{ fontFamily: '"Plus Jakarta Sans", "Noto Sans", sans-serif' }}
     >
-      {/* Main content area */}
-      <div className="flex-grow overflow-y-auto"> {/* Added flex-grow and overflow-y-auto for scrollable content */}
+      <div className="flex-1">
         {/* Header */}
-        <div className="flex items-center bg-slate-50 p-4 pb-2 justify-between sticky top-0 z-10"> {/* Made header sticky */}
-          <div className="text-[#0d141c] flex size-12 shrink-0 items-center" data-icon="X" data-size="24px" data-weight="regular">
-            {/* This X icon would typically have an onClick handler, e.g., to close a modal or navigate back */}
-            <XIcon />
+        <div className="flex items-center bg-slate-50 px-4 sm:px-6 py-4 pb-2 justify-between sticky top-0 z-10">
+          <div className="text-[#0d141c] flex size-10 sm:size-12 shrink-0 items-center">
+            <Link to="/voiceorder">
+              <XIcon />
+            </Link>
           </div>
-          <h2 className="text-[#0d141c] text-lg font-bold leading-tight tracking-[-0.015em] flex-1 text-center pr-12">訂單總覽</h2>
+          <h1 className="text-lg sm:text-xl font-semibold text-[#0d141c]">訂單明細</h1>
+          <div className="size-10 sm:size-12"></div> {/* Spacer for center alignment */}
         </div>
-
-        {/* Order Details Title */}
-        <h2 className="text-[#0d141c] text-[22px] font-bold leading-tight tracking-[-0.015em] px-4 pb-3 pt-5">訂單明細</h2>
-
-        {/* Order Items List */}
-        {orderItemsData.map((item, index) => (
-          <OrderItem key={index} name={item.name} quantity={item.quantity} price={item.price} />
-        ))}
         
-        {/* Special "Headline" item - its structure was different in the provided HTML */}
-        <div className="flex items-center gap-4 bg-slate-50 px-4 min-h-[72px] py-2"> {/* Note: `justify-between` was missing here in original HTML */}
-          <div className="flex flex-col justify-center overflow-hidden">
-            <p className="text-[#0d141c] text-base font-medium leading-normal line-clamp-1">Headline</p>
-            <p className="text-[#49739c] text-sm font-normal leading-normal line-clamp-2">1</p>
-          </div>
-          {/* Price was missing for this item in original HTML */}
+        {/* Order Items List */}
+        <div className="pb-4">
+          {renderContent()}
         </div>
       </div>
       
-      {/* Bottom Spacer (or potential footer area) */}
-      <div> {/* This div ensures the spacer is at the bottom if content is short, or after scrollable content */}
-        {/* Here you could add total summary, action buttons etc. For example:
-        <div className="p-4 border-t border-slate-200">
-          <div className="flex justify-between text-lg font-bold">
-            <span>Total:</span>
-            <span>${total.toFixed(2)}</span>
-          </div>
-          <button className="mt-4 w-full bg-[#0c7ff2] text-white py-3 rounded-xl font-bold">
-            Proceed to Payment
-          </button>
+      {/* Total and Submit Section */}
+      <div className="px-4 sm:px-6 py-6 border-t border-slate-200 bg-white space-y-6">
+        <div className="flex justify-between items-center text-lg sm:text-xl font-bold bg-slate-50 px-4 py-3 rounded-lg">
+          <span>總計:</span>
+          <span className="text-blue-600">${total}</span>
         </div>
-        */}
-        <div className="h-5 bg-slate-50"></div>
+        <button 
+          disabled={orderItems.length === 0}
+          className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-medium py-4 px-6 rounded-xl transition-colors duration-200 text-lg shadow-lg"
+        >
+          <Link
+            to="/payment"
+          >
+            選擇結帳方式
+          </Link>
+        </button>
       </div>
     </div>
   );

@@ -96,7 +96,13 @@ async def get_token(request: Request):
         )
         redis_client.setex(token_id, TOKEN_EXPIRE_MINUTES * 60, "valid")
         redis_client.setex(f"{token_id}_order_state", TOKEN_EXPIRE_MINUTES * 60, json.dumps(init_order_state()))
-        redis_client.setex(f"{token_id}_conversation", TOKEN_EXPIRE_MINUTES * 60, json.dumps([]))
+        redis_client.setex(f"{token_id}_conversation", TOKEN_EXPIRE_MINUTES * 60, json.dumps([
+            {
+                "type": "llm",
+                "response": "您好！歡迎使用語音點餐系統，請參考上方菜單並告訴我您想要什麼餐點？",
+                "time": datetime.now().isoformat()
+            }
+        ]))
 
         encrypted_token = encrypt_token(access_token)
         logger.info(f"Setting cookie with encrypted_token: {encrypted_token}")

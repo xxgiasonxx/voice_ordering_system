@@ -3,10 +3,9 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 # from starlette.middleware.sessions import SessionMiddleware
 from blueprint.order import order
-from blueprint.session import auth
-from blueprint.audio import audio
 from blueprint.orderSocket import audioWS
 from blueprint.token import token
+from blueprint.payment import payment
 import os
 
 # 初始化 FastAPI 應用
@@ -34,10 +33,9 @@ app.add_middleware(
 
 # 包含路由
 app.include_router(order, prefix="/order")
-app.include_router(auth, prefix="/auth")
 app.include_router(token)
-app.include_router(audio)
 app.include_router(audioWS)
+app.include_router(payment)
 
 if __name__ == '__main__':
     uvicorn.run(app, host='loaclhost', port=8000)

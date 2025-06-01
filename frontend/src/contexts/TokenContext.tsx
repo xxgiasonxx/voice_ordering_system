@@ -12,7 +12,7 @@ interface TokenContextType {
 const TokenContext = createContext<TokenContextType | undefined>(undefined);
 
 export const TokenProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-    const [token, setToken] = useState<string | null>(null);
+    // const [token, setToken] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [cookies, setcookies] = useCookies(["ordering_token"]); // 使用 react-cookie 來管理 cookies
@@ -29,18 +29,14 @@ export const TokenProvider: React.FC<{ children: ReactNode }> = ({ children }) =
             setIsLoading(true);
             setError(null);
             
-            const response = await axios.get('http://localhost:8000/get-token'
-                , {
-                    withCredentials: true, // 確保 cookie 被包含在請求中
-                }
-            );
+            const response = await axios.get('http://localhost:8000/get-token', {
+                withCredentials: true, // 確保 cookie 被包含在請求中
+            });
             console.log('Token fetched successfully:', response);
             if (response.status === 200) {
-                if (response.data && response.data && response.data.encrypted_token) {
+                if (response.data && response.data.encrypted_token) {
                     setcookies('ordering_token', response.data.encrypted_token);
                 }
-                // const encryptedToken = getCookie('ordering_token');
-                // setToken(encryptedToken);
             }
         } catch (error) {
             const errorMessage = error instanceof Error ? error.message : 'Failed to fetch token';
@@ -53,8 +49,13 @@ export const TokenProvider: React.FC<{ children: ReactNode }> = ({ children }) =
 
     // 頁面載入時自動獲取 token
     useEffect(() => {
+        // 如果已經有 token 就不需要重新獲取
+        if (cookies.ordering_token) {
+            setIsLoading(false);
+            return;
+        }
         fetchToken();
-    }, [fetchToken]);
+    }, [fetchToken, cookies.ordering_token]);
 
     return (
         error ? (

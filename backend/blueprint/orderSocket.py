@@ -1,4 +1,5 @@
 from fastapi import APIRouter, WebSocket, Cookie
+from fastapi.responses import JSONResponse
 from rag.rag_morning_eat import order_real_time
 from setup import cus_choice, vectorstore, conn, redis_client
 import os
@@ -15,6 +16,34 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 audioWS = APIRouter()
+
+@audioWS.get('/history')
+async def get_conversation_history(ordering_token: str = Cookie(None)):
+    """獲取對話歷史"""
+    try:
+        token = decrypt_token(ordering_token)
+        token_id = await verify_token(token)
+        if not token_id:
+            raise Exception("Invalid or expired token")
+    except Exception as e:
+        logger.error(f"Token verification failed: {e}")
+        return JSONResponse(
+            content={"error": "Invalid or expired token"},
+            status_code=401
+        )
+
+    # 從 Redis 獲取對話歷史
+    conversation_history = redis_client.get(f'{token_id}_conversation')
+    if conversation_history:
+        return JSONResponse(
+            content={"conversation": json.loads(conversation_history)},
+            status_code=200
+        )
+    else:
+        return JSONResponse(
+            content={"message": "No conversation history found"},
+            status_code=404
+        )
 
 # 對話歷史
 conversation_history = []
@@ -136,8 +165,11 @@ async def call_llm(text: str, token: str) -> str:
         "status": order_state.get('status', 'start'),
     }
 
+    conv_history = json.loads(redis_client.get(f'{token}_conversation'))
+
     response, neww_order_state = order_real_time(
-        text, 
+        query=text, 
+        conversation_history=conv_history,
         vectorstore=vectorstore, 
         cus_choice=cus_choice, 
         order_state=new_order_state, 

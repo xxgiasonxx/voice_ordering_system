@@ -1,13 +1,13 @@
 import { createBrowserRouter } from "react-router-dom";
-import Error from "../pages/Error";
-import Home from "../pages/Home";
-import Choice from "../pages/Choice";
-import Menu from "../pages/Menu";
-import VoiceOrder from "../pages/VoiceOrder";
-import OrderState from "../pages/OrderState"
-import OrderView from "../pages/OrderView";
-import Payment from "../pages/Payment";
-import SpeechToText from "../pages/test";
+import Error from "@/pages/Error";
+import Home from "@/pages/Home";
+import Choice from "@/pages/Choice";
+import Menu from "@/pages/Menu";
+import VoiceOrder from "@/pages/VoiceOrder";
+import OrderState from "@/pages/OrderState"
+import OrderView from "@/pages/OrderView";
+import Payment from "@/pages/Payment";
+// import SpeechToText from "@/pages/VoiceOrder";
 // import { InitOrderState } from "../protect/InitOrderState";
 
 export const router = createBrowserRouter([
@@ -47,9 +47,9 @@ export const router = createBrowserRouter([
     element: <Payment />,
     errorElement: <Error />,
   },
-  {
-    path: "/test",
-    element: <SpeechToText />,
-    errorElement: <Error />,
-  }
+  // {
+  //   path: "/test",
+  //   element: <SpeechToText />,
+  //   errorElement: <Error />,
+  // }
 ]);
