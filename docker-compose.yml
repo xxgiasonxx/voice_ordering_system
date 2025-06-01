@@ -1,21 +1,58 @@
-version: "3.8"
+version: '3.8'
+
 services:
-  db:
-    image: postgres:latest
-    environment:
-      POSTGRES_USER: example_user
-      POSTGRES_PASSWORD: example_password
-      POSTGRES_DB: example_db
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
     ports:
-      - "5432:5432"
+      - "80:80"
     volumes:
-      - db_data: /var/lib/postgresql/data
+      # 這行允許在開發模式下進行即時重載，但對於生產部署可以移除
+      - ./frontend:/app/frontend
+      - /app/frontend/node_modules # 避免 host 上的 node_modules 覆蓋容器內的
+    depends_on:
+      - backend # 前端依賴後端，確保後端先啟動
+    environment:
+      # 如果您的前端需要知道後端的 URL，可以在這裡設定
+      # 例如：REACT_APP_BACKEND_URL: http://backend:8000
+      # 注意：在 Docker Compose 網路中，服務名稱 (backend) 可以作為主機名使用
+      VITE_BACKEND_API_URL: http://backend:8000 # 假設您的前端需要這個環境變數
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    volumes:
+      # 這行允許在開發模式下進行即時重載，但對於生產部署可以移除
+      - ./backend:/app/backend
+    environment:
+      # 如果您的後端需要任何環境變數，可以在這裡設定
+      # 例如：DATABASE_URL: postgresql://user:password@db:5432/mydb
+      PYTHONUNBUFFERED: 1 # 確保 Python 日誌即時輸出
+      SECRET_KEY: "YourSecretKeyHere"  # Replace with your actual secret key !!important!!
+      FERNET_KEY: "YourFernetKeyHere"  # Replace with your actual Fernet key !!important!!
+      ALGORITHM: HS256 # JWT algorithm
+      TOKEN_EXPIRE_MINUTES: 300 # Token expiration time in minutes
+      CHROMADB_PATH: ./db/chroma_db # Path to your ChromaDB database
+      DB_PATH: ./db/morning_eat.db # Path to your SQLite database
+      GOOGLE_API_KEY: your_google_ai_studio_api_key"  # Replace with your actual Google API key !!important!!
+      DEEPGRAM_API_KEY: your_deepgram_api_key"  # Replace with your actual Deepgram API key !!important
+
   redis:
     image: redis:latest
     ports:
       - "6379:6379"
     volumes:
       - redis_data: /data
+    command: redis-server --appendonly yes # 啟用 AOF 持久化模式
+
 volumes:
-  db_data:
   redis_data: 
+
+networks:
+  default:
+    # 預設使用橋接網路，方便服務間通訊
+    # 如果您需要更複雜的網路配置，可以在這裡定義
