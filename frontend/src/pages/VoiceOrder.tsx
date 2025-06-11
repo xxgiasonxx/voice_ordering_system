@@ -34,6 +34,16 @@ interface HistoryResponse {
   conversation: HistoryMessage[];
 }
 
+// --- 核心轉換函式：將 Float32 轉換為 Int16 ---
+const float32ToInt16 = (buffer: Float32Array): ArrayBuffer => {
+    let l = buffer.length;
+    const buf = new Int16Array(l);
+    while (l--) {
+        buf[l] = Math.min(1, buffer[l]) * 0x7FFF;
+    }
+    return buf.buffer;
+};
+
 export const LiveTranscription: React.FC = () => {
   const { isLoading } = useToken();
   const [transcript, setTranscript] = useState<string>('');
@@ -54,26 +64,25 @@ export const LiveTranscription: React.FC = () => {
   const [isLoadingHistory, setIsLoadingHistory] = useState(false);
 
   const socketRef = useRef<WebSocket | null>(null);
-  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
-  const imageRef = useRef<HTMLImageElement>(null);
-  const containerRef = useRef<HTMLDivElement>(null);
+  const audioContextRef = useRef<AudioContext | null>(null);
+  const scriptProcessorRef = useRef<ScriptProcessorNode | null>(null);
+  const imageRef = useRef<HTMLImageElement | null>(null);
+  const containerRef = useRef<HTMLDivElement | null>(null);
   const reconnectTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const isReconnectingRef = useRef<boolean>(false);
   const isMountedRef = useRef<boolean>(true);
   
-  // 觸控縮放相關狀態
   const lastTouchDistance = useRef<number>(0);
   const isDragging = useRef<boolean>(false);
   const lastTouchPosition = useRef<{ x: number; y: number }>({ x: 0, y: 0 });
 
-  // 載入歷史對話
   const loadConversationHistory = async () => {
     setIsLoadingHistory(true);
     try {
       const baseUrl: string = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
       const response = await axios(`${baseUrl}/history`, {
-        withCredentials: true, // 確保 cookie 被包含在請求中
+        withCredentials: true,
       });
       if (response.status !== 200) {
         throw new Error('Failed to fetch conversation history');
@@ -85,15 +94,13 @@ export const LiveTranscription: React.FC = () => {
         return;
       }
       if (data.conversation && data.conversation.length > 0) {
-        // 轉換歷史對話格式
         const historyMessages: ChatMessage[] = data.conversation.map((msg, index) => ({
-          id: index + 1, // 從2開始，因為歡迎訊息是1
+          id: index + 1,
           type: msg.type === 'cus' ? 'user' as const : 'bot' as const,
           message: msg.type === 'cus' ? (msg.transcript || '') : (msg.response || ''),
           timestamp: new Date(msg.time)
-        })).filter(msg => msg.message.trim() !== ''); // 過濾空訊息
+        })).filter(msg => msg.message.trim() !== '');
         
-        // 將歷史對話加到現有訊息中
         setChatMessages([
           ...historyMessages
         ]);
@@ -106,22 +113,18 @@ export const LiveTranscription: React.FC = () => {
     }
   };
 
-  // 計算兩點間距離
   const getDistance = (touch1: React.Touch, touch2: React.Touch) => {
     const dx = touch1.clientX - touch2.clientX;
     const dy = touch1.clientY - touch2.clientY;
     return Math.sqrt(dx * dx + dy * dy);
   };
 
-  // 處理觸控開始
   const handleTouchStart = (e: React.TouchEvent) => {
     if (e.touches.length === 2) {
-      // 雙指縮放
       e.preventDefault();
       const distance = getDistance(e.touches[0], e.touches[1]);
       lastTouchDistance.current = distance;
     } else if (e.touches.length === 1 && imageScale > 1) {
-      // 單指拖拽（僅在放大狀態下）
       isDragging.current = true;
       lastTouchPosition.current = {
         x: e.touches[0].clientX,
@@ -130,10 +133,8 @@ export const LiveTranscription: React.FC = () => {
     }
   };
 
-  // 處理觸控移動
   const handleTouchMove = (e: React.TouchEvent) => {
     if (e.touches.length === 2) {
-      // 雙指縮放
       e.preventDefault();
       const distance = getDistance(e.touches[0], e.touches[1]);
       const scaleDelta = distance / lastTouchDistance.current;
@@ -142,7 +143,6 @@ export const LiveTranscription: React.FC = () => {
       setImageScale(newScale);
       lastTouchDistance.current = distance;
     } else if (e.touches.length === 1 && isDragging.current && imageScale > 1) {
-      // 單指拖拽
       e.preventDefault();
       const deltaX = e.touches[0].clientX - lastTouchPosition.current.x;
       const deltaY = e.touches[0].clientY - lastTouchPosition.current.y;
@@ -159,7 +159,6 @@ export const LiveTranscription: React.FC = () => {
     }
   };
 
-  // 處理觸控結束
   const handleTouchEnd = (e: React.TouchEvent) => {
     if (e.touches.length < 2) {
       lastTouchDistance.current = 0;
@@ -169,7 +168,6 @@ export const LiveTranscription: React.FC = () => {
     }
   };
 
-  // 雙擊縮放
   const handleDoubleClick = () => {
     if (imageScale === 1) {
       setImageScale(2);
@@ -183,13 +181,14 @@ export const LiveTranscription: React.FC = () => {
     setImagePosition({ x: 0, y: 0 });
   };
 
-  // 開始語音點餐
   const startVoiceOrdering = () => {
     setShowWelcomePrompt(false);
+    // *** UX OPTIMIZATION: Immediately provide feedback to the user ***
+    setError("正在準備語音引擎，請稍候...");
+    setIsConnected(false);
   };
 
-  // 自動重連機制
-  const attemptReconnect = async (retryCount = 0) => {
+  const attemptReconnect = (retryCount = 0) => {
     const maxRetries = 5;
     const baseDelay = 1000;
     
@@ -215,62 +214,75 @@ export const LiveTranscription: React.FC = () => {
     }, delay);
   };
 
+  const stopAudioProcessing = () => {
+      if (streamRef.current) {
+          streamRef.current.getTracks().forEach(track => track.stop());
+          streamRef.current = null;
+      }
+      if (scriptProcessorRef.current) {
+          scriptProcessorRef.current.disconnect();
+          scriptProcessorRef.current = null;
+      }
+      if (audioContextRef.current && audioContextRef.current.state !== 'closed') {
+          audioContextRef.current.close();
+          audioContextRef.current = null;
+      }
+  };
+
   const initializeAudio = async () => {
     try {
-      // 清理現有連接
       if (socketRef.current) {
         socketRef.current.close();
-        socketRef.current = null;
       }
-      
-      if (mediaRecorderRef.current && mediaRecorderRef.current.state !== 'inactive') {
-        mediaRecorderRef.current.stop();
-      }
+      stopAudioProcessing();
 
-      if (!MediaRecorder.isTypeSupported('audio/webm')) {
-        setError('Browser not supported');
-        return;
-      }
+      const SAMPLE_RATE = 16000;
+      const BUFFER_SIZE = 4096;
 
-      // 如果沒有音頻流，重新獲取
-      if (!streamRef.current) {
-        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-        if (!isMountedRef.current) {
-          stream.getTracks().forEach(track => track.stop());
-          return;
+      const stream = await navigator.mediaDevices.getUserMedia({
+        audio: {
+          sampleRate: SAMPLE_RATE,
+          channelCount: 1,
+          echoCancellation: true,
         }
-        streamRef.current = stream;
-      }
-
-      const mediaRecorder = new MediaRecorder(streamRef.current, {
-        mimeType: 'audio/webm',
       });
-      mediaRecorderRef.current = mediaRecorder;
+      if (!isMountedRef.current) { stream.getTracks().forEach(track => track.stop()); return; }
+      streamRef.current = stream;
 
+      const AudioCtx = window.AudioContext || (window as any).webkitAudioContext;
+      const context = new AudioCtx({ sampleRate: SAMPLE_RATE });
+      audioContextRef.current = context;
+      
+      const source = context.createMediaStreamSource(stream);
+      const processor = context.createScriptProcessor(BUFFER_SIZE, 1, 1);
+      scriptProcessorRef.current = processor;
+      
       const socket = new WebSocket(`ws://localhost:8000/asr`);
       socketRef.current = socket;
 
       socket.onopen = () => {
         if (!isMountedRef.current) return;
-        console.log('WebSocket connected successfully');
+        console.log('WebSocket connected successfully. Audio processing will start.');
+        // *** UX OPTIMIZATION: Update state only when fully ready ***
         setIsConnected(true);
-        setError(null);
+        setError(null); // Clear "preparing..." message
         isReconnectingRef.current = false;
 
-        // 清理任何掛起的重連嘗試
         if (reconnectTimeoutRef.current) {
           clearTimeout(reconnectTimeoutRef.current);
-          reconnectTimeoutRef.current = null;
         }
 
-        mediaRecorder.addEventListener('dataavailable', async (event) => {
-          if (event.data.size > 0 && socket.readyState === WebSocket.OPEN) {
-            console.log("Sending audio data to WebSocket");
-            socket.send(event.data);
-          }
-        });
-        
-        mediaRecorder.start(250);
+        // Start processing audio only after the connection is fully open
+        processor.onaudioprocess = (audioProcessingEvent) => {
+            if (socketRef.current && socketRef.current.readyState === WebSocket.OPEN) {
+                const inputData = audioProcessingEvent.inputBuffer.getChannelData(0);
+                const pcmData = float32ToInt16(inputData);
+                socketRef.current.send(pcmData);
+            }
+        };
+
+        source.connect(processor);
+        processor.connect(context.destination);
       };
 
       socket.onmessage = (message) => {
@@ -280,40 +292,22 @@ export const LiveTranscription: React.FC = () => {
           const data: WebSocketMessage = JSON.parse(message.data);
           
           switch (data.type) {
-            case 'success':
-              setIsConnected(true);
-              setError(null);
-              break;
-              
             case 'cus':
               if (data.transcript) {
                 setTranscript(data.transcript);
-                const userMessage: ChatMessage = {
-                  id: Date.now(),
-                  type: 'user',
-                  message: data.transcript,
-                  timestamp: new Date()
-                };
+                const userMessage: ChatMessage = { id: Date.now(), type: 'user', message: data.transcript, timestamp: new Date() };
                 setChatMessages(prev => [...prev, userMessage]);
               }
               break;
-              
             case 'llm':
               if (data.response) {
-                const botMessage: ChatMessage = {
-                  id: Date.now(),
-                  type: 'bot',
-                  message: data.response,
-                  timestamp: new Date()
-                };
+                const botMessage: ChatMessage = { id: Date.now(), type: 'bot', message: data.response, timestamp: new Date() };
                 setChatMessages(prev => [...prev, botMessage]);
               }
               break;
-              
             case 'error':
               setError(data.msg || 'Unknown error');
               break;
-              
             case 'close':
               setIsConnected(false);
               console.log('WebSocket closed:', data.msg);
@@ -321,31 +315,14 @@ export const LiveTranscription: React.FC = () => {
                 attemptReconnect();
               }
               break;
-
             case 'end':
               setIsConnected(false);
               console.log('Transcription ended - redirecting to orders');
-              // 直接跳轉到訂單頁面，不再重連
               window.location.href = '/orderview';
               break;
-              
-            default:
-              console.log('Unknown message type:', data);
           }
         } catch (err) {
           console.error('Error parsing WebSocket message:', err);
-          // Fallback to old format for backward compatibility
-          const received = message.data;
-          if (received) {
-            setTranscript(received);
-            const userMessage: ChatMessage = {
-              id: Date.now(),
-              type: 'user',
-              message: received,
-              timestamp: new Date()
-            };
-            setChatMessages(prev => [...prev, userMessage]);
-          }
         }
       };
 
@@ -353,8 +330,8 @@ export const LiveTranscription: React.FC = () => {
         if (!isMountedRef.current) return;
         console.log('WebSocket closed:', event.code, event.reason);
         setIsConnected(false);
+        stopAudioProcessing();
         
-        // 只有在非正常關閉時才嘗試重連
         if (event.code !== 1000 && !isReconnectingRef.current) {
           attemptReconnect();
         }
@@ -363,18 +340,17 @@ export const LiveTranscription: React.FC = () => {
       socket.onerror = (error) => {
         if (!isMountedRef.current) return;
         console.error('WebSocket error:', error);
-        setError('WebSocket connection error');
+        setError('WebSocket 連線錯誤');
         setIsConnected(false);
+        stopAudioProcessing();
       };
 
     } catch (err) {
       if (!isMountedRef.current) return;
       console.error('Error initializing audio:', err);
-      
-      // 如果是音頻初始化失敗，也嘗試重連
+      setError('無法啟用麥克風');
       if (!isReconnectingRef.current) {
         attemptReconnect();
-        setError('Failed to access microphone');
       }
     }
   };
@@ -382,7 +358,6 @@ export const LiveTranscription: React.FC = () => {
   useEffect(() => {
     isMountedRef.current = true;
     
-    // 載入歷史對話
     loadConversationHistory();
     
     if (!showWelcomePrompt) {
@@ -393,27 +368,15 @@ export const LiveTranscription: React.FC = () => {
       isMountedRef.current = false;
       isReconnectingRef.current = false;
       
-      // 清理重連定時器
       if (reconnectTimeoutRef.current) {
         clearTimeout(reconnectTimeoutRef.current);
-        reconnectTimeoutRef.current = null;
       }
       
-      // 清理媒體錄製器
-      if (mediaRecorderRef.current && mediaRecorderRef.current.state !== 'inactive') {
-        mediaRecorderRef.current.stop();
-      }
-      
-      // 清理WebSocket連接
       if (socketRef.current) {
         socketRef.current.close();
-        socketRef.current = null;
       }
       
-      // 清理音頻流
-      if (streamRef.current) {
-        streamRef.current.getTracks().forEach(track => track.stop());
-      }
+      stopAudioProcessing();
     };
   }, [showWelcomePrompt]);
 
@@ -472,7 +435,7 @@ export const LiveTranscription: React.FC = () => {
       {error && (
         <div className="bg-red-50 border-b border-red-200 py-2 px-3 sticky top-[56px] z-20">
           <div className="flex items-center justify-center space-x-2">
-            <span className="text-red-700 text-xs font-medium">錯誤: {error}</span>
+            <span className="text-red-700 text-xs font-medium">{error}</span>
           </div>
         </div>
       )}

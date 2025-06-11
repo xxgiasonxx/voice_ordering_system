@@ -1,0 +1,25 @@
+[project]
+name = "backend"
+version = "0.1.0"
+description = "Voice Ordering System Backend"
+readme = "README.md"
+requires-python = "==3.10.18"
+dependencies = [
+    "cryptography==45.0.3",
+    "deepgram-sdk==4.1.0",
+    "fastapi[standard]==0.115.9",
+    "google-cloud-speech>=2.32.0",
+    "gunicorn==23.0.0",
+    "langchain-chroma==0.2.4",
+    "langchain-community==0.3.24",
+    "langchain-core==0.3.63",
+    "langchain-google-genai==2.1.5",
+    "langchain-ollama==0.3.3",
+    "onnxruntime==1.16.3",
+    "pydantic==2.11.5",
+    "python-dotenv==1.1.0",
+    "python-jose==3.5.0",
+    "redis==6.2.0",
+    "typing-extensions==4.13.2",
+    "uvicorn==0.34.3",
+]

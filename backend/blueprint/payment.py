@@ -102,7 +102,7 @@ async def clean_cookie(ordering_token: str = Cookie(None)):
 
     try:
         # 清除 Redis 中的訂單狀態和對話歷史
-        redis_client.delete(f'{token_id}_order_state', f'{token_id}_conversation', token_id)
+        redis_client.delete(f'{token_id}_order_state', f'{token_id}_conversation')
         response = JSONResponse(
             content={"msg": "Cookies cleaned successfully"},
             status_code=200

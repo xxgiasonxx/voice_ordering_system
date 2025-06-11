@@ -7,13 +7,18 @@ import logging
 import json
 from dotenv import load_dotenv
 from deepgram import DeepgramClient, LiveTranscriptionEvents, LiveOptions
-from typing import Dict, Callable
+from typing import Dict, Callable, Awaitable, Tuple, Coroutine
 from blueprint.token import decrypt_token, verify_token
 from datetime import datetime
+from google.cloud import speech
+import asyncio
 load_dotenv()
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
+
+TranscriptHandler = Callable[[Dict], Awaitable[None]]
+
 
 audioWS = APIRouter()
 
@@ -48,79 +53,147 @@ async def get_conversation_history(ordering_token: str = Cookie(None)):
 # 對話歷史
 conversation_history = []
 
-dg_client = DeepgramClient(os.getenv('DEEPGRAM_API_KEY'))
-
-async def process_audio(fast_socket: WebSocket, ordering_token: str):
-    async def get_transcript(data: Dict) -> None:
-        if 'channel' in data:
-            transcript = data['channel']['alternatives'][0]['transcript']
-            if transcript:
-                logger.info(f"Received transcript: {transcript}")
-                logger.info(f"Current ordering token: {ordering_token}")
-                conv = json.loads(redis_client.get(f'{ordering_token}_conversation'))
-                logger.info(f"Current conversation state: {conv}")
-                try:
-                    transcript_send = {"type": "cus", "transcript": transcript, "time": datetime.now().isoformat()}
-                    logger.info(f"Sending transcript to WebSocket: {transcript_send}")
-                    await fast_socket.send_json(transcript_send)
-                    logger.info(f"Sending transcript: {transcript}")
-                    conv.append(transcript_send)
-                except Exception as e:
-                    logger.error(f"Error sending transcript: {e}")
-                    await fast_socket.send_json({"type": "error", "msg": "Failed to send transcript"})
-                    return
-                try:
-                    response, status, order_diff = await call_llm(transcript, ordering_token)
-                    llm_send = {"type": "llm", "response": response, "time": datetime.now().isoformat()}
-                    logger.info(f"LLM response: {response}")
-                    await fast_socket.send_json(llm_send)
-                    await fast_socket.send_json({"type": "order", "diff": order_diff})
-                    conv.append(llm_send)
-                except Exception as e:
-                    logger.error(f"Error calling LLM: {e}")
-                    await fast_socket.send_json({"type": "error", "msg": "Failed to call LLM"})
-                    return
-                redis_client.set(f'{ordering_token}_conversation', json.dumps(conv))
-                if status:
-                    end_send = {"type": "end", "msg": "Conversation ended"}
-                    await fast_socket.send_json(end_send)
-                    conv.append(end_send)
-                    redis_client.set(f'{ordering_token}_conversation', json.dumps(conv))
-                    await fast_socket.close()
-
-    deepgram_socket = await connect_to_deepgram(get_transcript)
-    return deepgram_socket
-
-async def connect_to_deepgram(transcript_received_handler: Callable[[Dict], None]):
+async def start_google_streaming_asr(transcript_received_handler: TranscriptHandler) -> Tuple[asyncio.Queue, Coroutine]:
+    """
+    準備 Google ASR 串流，並回傳音訊佇列以及需要被執行的回應處理器協程。
+    """
     try:
-        # Use async websocket client
-        dg_connection = dg_client.listen.asyncwebsocket.v("1")
-        
-        # Fix the on_message function signature and make it async
-        # Fix the on_message function signature and make it async
-        async def on_message(self, result, **kwargs):
-            sentence = result.channel.alternatives[0].transcript
-            if len(sentence) == 0:
-                return
-            
-            if sentence:
-                await transcript_received_handler({"channel": {"alternatives": [{"transcript": sentence}]}})
-        dg_connection.on(LiveTranscriptionEvents.Transcript, on_message)
-        
-        options = LiveOptions(
-            model='nova-2',  # Use nova-2 or nova-3 as in official example
-            language='zh-TW',
-            punctuate=True,
-            interim_results=False
+        audio_queue = asyncio.Queue()
+        client = speech.SpeechAsyncClient()
+        recognition_config = speech.RecognitionConfig(
+            encoding=speech.RecognitionConfig.AudioEncoding.LINEAR16,
+            sample_rate_hertz=16000,
+            language_code="zh-TW",
+            enable_automatic_punctuation=True,
         )
-        
-        # Use async start
-        if await dg_connection.start(options) is False:
-            raise Exception("Failed to start connection")
-            
-        return dg_connection
+        streaming_config = speech.StreamingRecognitionConfig(
+            config=recognition_config,
+            interim_results=True,
+            # 明確設定為連續辨識模式
+            single_utterance=False
+        )
+
+        async def audio_generator():
+            yield speech.StreamingRecognizeRequest(streaming_config=streaming_config)
+            while True:
+                chunk = await audio_queue.get()
+                if chunk is None:
+                    break
+                yield speech.StreamingRecognizeRequest(audio_content=chunk)
+                audio_queue.task_done()
+
+        async def response_processor():
+            """
+            此協程現在會由呼叫者 (websocket_endpoint) 執行，確保錯誤能被捕獲。
+            """
+            try:
+                requests = audio_generator()
+                responses = await client.streaming_recognize(requests=requests)
+                logger.info("ASR response processor started. Listening for responses from Google...")
+                async for response in responses:
+                    logger.debug(f"Received raw response from Google: {response}")
+                    if not response.results or not response.results[0].alternatives:
+                        continue
+                    result = response.results[0]
+                    transcript = result.alternatives[0].transcript
+                    if result.is_final:
+                        if transcript:
+                            logger.info(f"Google ASR FINAL transcript: '{transcript}'")
+                            formatted_result = {"channel": {"alternatives": [{"transcript": transcript}]}}
+                            await transcript_received_handler(formatted_result)
+                    else:
+                        logger.info(f"Google ASR Interim transcript: '{transcript}'")
+            finally:
+                logger.info("ASR response processor finished.")
+
+        # 回傳佇列和尚未被執行的協程
+        return audio_queue, response_processor()
     except Exception as e:
-        raise Exception(f'Could not open socket: {e}')
+        raise Exception(f'Could not start Google ASR stream: {e}')
+
+
+async def process_audio(fast_socket: WebSocket, ordering_token: str) -> Tuple[asyncio.Queue, Coroutine]:
+    """
+    設定 ASR，並回傳音訊佇列以及 Google 回應處理器。
+    """
+    async def get_transcript(data: Dict) -> None:
+        transcript = data['channel']['alternatives'][0]['transcript']
+        if transcript:
+            # --- 您的核心業務邏輯，無需變動 ---
+            logger.info(f"Handler processing final transcript: {transcript}")
+            conv = json.loads(redis_client.get(f'{ordering_token}_conversation'))
+            try:
+                transcript_send = {"type": "cus", "transcript": transcript, "time": datetime.now().isoformat()}
+                await fast_socket.send_json(transcript_send)
+                conv.append(transcript_send)
+            except Exception as e:
+                logger.error(f"Error sending transcript: {e}")
+                return
+            try:
+                response, status, order_diff = await call_llm(transcript, ordering_token)
+                llm_send = {"type": "llm", "response": response, "time": datetime.now().isoformat()}
+                await fast_socket.send_json(llm_send)
+                await fast_socket.send_json({"type": "order", "diff": order_diff})
+                conv.append(llm_send)
+            except Exception as e:
+                logger.error(f"Error calling LLM: {e}")
+                return
+            redis_client.set(f'{ordering_token}_conversation', json.dumps(conv))
+            if status:
+                end_send = {"type": "end", "msg": "Conversation ended"}
+                await fast_socket.send_json(end_send)
+                conv.append(end_send)
+                redis_client.set(f'{ordering_token}_conversation', json.dumps(conv))
+                await fast_socket.close()
+
+    audio_queue, google_response_processor = await start_google_streaming_asr(get_transcript)
+    return audio_queue, google_response_processor
+
+
+@audioWS.websocket("/asr")
+async def websocket_endpoint(websocket: WebSocket, ordering_token: str = Cookie(None)):
+    await websocket.accept()
+    await websocket.send_json({"type": "success", "msg": "WebSocket connection established"})
+
+    audio_queue = None
+    try:
+        token = decrypt_token(ordering_token)
+        token_id = await verify_token(token)
+        if not token_id:
+            raise Exception("Invalid or expired token")
+
+        audio_queue, google_response_processor = await process_audio(websocket, ordering_token=token_id)
+
+        # --- 全新的任務管理結構 ---
+        async def forward_audio_to_queue():
+            """從 WebSocket 接收音訊並放入佇列"""
+            try:
+                while True:
+                    data = await websocket.receive_bytes()
+                    # *** 關鍵偵錯日誌：檢查音訊內容 ***
+                    logger.info(f"Received audio data of length: {len(data)}, first 20 bytes (hex): {data[:20].hex()}")
+                    await audio_queue.put(data)
+            except Exception as e:
+                logger.error(f"Error receiving audio from websocket: {e}")
+            finally:
+                # 確保如果接收迴圈結束，也發送結束訊號
+                if audio_queue:
+                    await audio_queue.put(None)
+                logger.info("Audio forwarding task finished.")
+
+        # 同時執行兩個任務：一個轉發音訊，一個處理 Google 回應
+        await asyncio.gather(
+            forward_audio_to_queue(),
+            google_response_processor
+        )
+
+    except Exception as e:
+        logger.error(f"FATAL ERROR in websocket_endpoint: {e}", exc_info=True)
+    finally:
+        if websocket.client_state.name == "CONNECTED":
+            logger.info("Closing WebSocket connection from finally block.")
+            await websocket.close()
+
     
 def order_diff_state(order_state: Dict, new_order_state: Dict):
     '''比較兩個訂單狀態，查看是否新增或減少了項目'''
