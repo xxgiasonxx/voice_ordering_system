@@ -12,7 +12,7 @@ load_dotenv()
 def init_embedding():
     # 初始化嵌入模型
     try:
-        embedding_model = OllamaEmbeddings(model="deepseek-r1:1.5b")
+        embedding_model = OllamaEmbeddings(model="qwen3-embedding:0.6b", base_url=os.getenv("OLLAMA_BASE_URL", "http://ollama:11434"))
     except Exception as e:
         print(f"嵌入模型載入失敗：{e}")
         raise e
@@ -68,7 +68,7 @@ except Exception as e:
     raise e
 try:
     vectorstore = load_menu_to_vectorstore(persist_directory=os.getenv('CHROMADB_PATH'), name="morning_menu", embedding_model=embedding_model)
-    conn = create_connection(db_file=os.getenv('DB_PATH', "./db/database.db"))
+    conn = create_connection()
     logger.info("vectorstore and database connection initialized")
 except Exception as e:
     logger.error(f"Failed to initialize vectorstore or database connection: {e}")

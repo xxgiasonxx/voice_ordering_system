@@ -4,7 +4,12 @@ from langchain_core.prompts import PromptTemplate
 from .CRUD_database import query_drink_menu, query_main_menu, query_combo_menu, query_name_to_price
 from .useModel import useModel
 from sqlite3 import Connection
+from dotenv import load_dotenv
+import os
 import re
+
+load_dotenv()
+LLM_MODEL = os.getenv("LLM_MODEL", "gemini_api")
 
 
 # 初始化訂單
@@ -29,14 +34,16 @@ def rag_query(query, conversation_history, vectorstore, order_state, cus_choice,
 
     # 用 Ollama 生成回應
     try:
-        model = useModel("gemini_api")
+        model = useModel(LLM_MODEL)
 
         chain = prompt | model
 
         response = chain.invoke({'json': ex_json, 'history': conversation_history, 'context': context, 'order_state': order_state, 'query': query})
 
-        if response.content != None:
+        if hasattr(response, 'content'):
             response = response.content
+        elif not isinstance(response, str):
+            response = str(response)
 
         # 解析 LLM 回應，更新訂單
         customer_response, new_order_state = parse_llm_response(response, order_state, cus_choice, conn)

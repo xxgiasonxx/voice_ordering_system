@@ -12,24 +12,34 @@ payment = APIRouter(
 
 @payment.get('/see_order')
 async def see_order(ordering_token: str = Cookie(None)):
+    import sys
+    print(f"[DEBUG] see_order: START ordering_token type={type(ordering_token)}", flush=True)
     try:
-        # Decrypt and verify the token
         token = decrypt_token(ordering_token)
+        print(f"[DEBUG] see_order: token type={type(token)}, token[:50]={token[:50] if token else None}...", flush=True)
         token_id = await verify_token(token)
+        print(f"[DEBUG] see_order: token_id={token_id}", flush=True)
         if not token_id:
             raise HTTPException(status_code=401, detail='Invalid or expired token')
+    except HTTPException:
+        raise  # Re-raise HTTPException without catching
     except Exception as e:
-        print(f"Token verification failed: {e}")
+        print(f"Token verification failed: {e}", flush=True)
         return JSONResponse(
             content={"error": "Invalid or expired token"},
             status_code=401
         )
 
     try:
-        order_state = json.loads(redis_client.get(f'{token_id}_order_state'))
+        redis_key = f'{token_id}_order_state'
+        print(f"[DEBUG] see_order: redis_key={redis_key}", flush=True)
+        raw_data = redis_client.get(redis_key)
+        print(f"[DEBUG] see_order: raw_data type={type(raw_data)}, len={len(raw_data) if raw_data else 0}", flush=True)
+        order_state = json.loads(raw_data) if raw_data else None
+        print(f"[DEBUG] see_order: order_state={order_state is not None}", flush=True)
         if not order_state:
             return JSONResponse(
-                content={"error": "Order state not found"},
+                content={"error": "Order state not found", "redis_key": redis_key},
                 status_code=404
             )
 
@@ -38,7 +48,7 @@ async def see_order(ordering_token: str = Cookie(None)):
             status_code=200
         )
     except Exception as e:
-        print(f"Error retrieving order state: {e}")
+        print(f"Error retrieving order state: {e}", flush=True)
         return JSONResponse(
             content={"error": "Failed to retrieve order state"},
             status_code=500

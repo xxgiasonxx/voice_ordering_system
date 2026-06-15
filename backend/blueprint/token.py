@@ -23,9 +23,22 @@ SECRET_KEY = os.getenv('SECRET_KEY', "your_secret_key_here")
 ALGORITHM = os.getenv('ALGORITHM', "HS256")
 TOKEN_EXPIRE_MINUTES = int(os.getenv('TOKEN_EXPIRE_MINUTES', 30))
 
-# Fernet 加密設定
-FERNET_KEY = os.getenv("FERNET_KEY", Fernet.generate_key())  # 實際應用中應儲存在環境變數
-cipher = Fernet(FERNET_KEY)
+# Fernet 加密設定 (lazy init to avoid crash at import time)
+FERNET_KEY = os.getenv("FERNET_KEY")
+_cipher = None
+
+def _get_cipher():
+    global _cipher
+    if _cipher is None:
+        key = FERNET_KEY or Fernet.generate_key().decode()
+        try:
+            Fernet(key)
+        except ValueError:
+            logger.warning("Invalid FERNET_KEY, generating a new one. THIS IS INSECURE for production!")
+            key = Fernet.generate_key().decode()
+        _cipher = Fernet(key)
+        logger.info("Fernet cipher initialized")
+    return _cipher
 
 @token.get("/me")
 async def test_me(request: Request):
@@ -59,12 +72,12 @@ def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
 
 # 加密 token
 def encrypt_token(token: str) -> str:
-    return cipher.encrypt(token.encode()).decode()
+    return _get_cipher().encrypt(token.encode()).decode()
 
 # 解密 token
 def decrypt_token(encrypted_token: str) -> str:
     try:
-        return cipher.decrypt(encrypted_token.encode()).decode()
+        return _get_cipher().decrypt(encrypted_token.encode()).decode()
     except Exception:
         raise HTTPException(status_code=401, detail="Invalid encrypted token")
 

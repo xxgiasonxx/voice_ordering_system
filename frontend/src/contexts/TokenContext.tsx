@@ -1,6 +1,5 @@
 // src/context/TokenContext.tsx
 import React, { createContext, useContext, useEffect, useState, ReactNode, useCallback } from 'react';
-import { useCookies } from 'react-cookie';
 import axios from 'axios';
 
 interface TokenContextType {
@@ -15,29 +14,16 @@ export const TokenProvider: React.FC<{ children: ReactNode }> = ({ children }) =
     // const [token, setToken] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
-    const [cookies, setcookies] = useCookies(["ordering_token"]); // 使用 react-cookie 來管理 cookies
 
-    // 從 cookie 取得加密的 token
-    // const getCookie = useCallback((name: string): string | null => {
-    //     // console.log('Cookies:', cookies);
-    //     return null;
-    // }, []);
-
-    // 呼叫後端 API 獲取 token
+    // 呼叫後端 API 獲取 token (後端會自動設置 HttpOnly cookie)
     const fetchToken = useCallback(async () => {
         try {
             setIsLoading(true);
             setError(null);
             
-            const response = await axios.get('http://localhost:8000/get-token', {
+            await axios.get('http://localhost:8000/get-token', {
                 withCredentials: true, // 確保 cookie 被包含在請求中
             });
-            console.log('Token fetched successfully:', response);
-            if (response.status === 200) {
-                if (response.data && response.data.encrypted_token) {
-                    setcookies('ordering_token', response.data.encrypted_token);
-                }
-            }
         } catch (error) {
             const errorMessage = error instanceof Error ? error.message : 'Failed to fetch token';
             setError(errorMessage);
@@ -45,17 +31,12 @@ export const TokenProvider: React.FC<{ children: ReactNode }> = ({ children }) =
         } finally {
             setIsLoading(false);
         }
-    }, [setcookies]);
+    }, []);
 
-    // 頁面載入時自動獲取 token
+    // 頁面載入時自動獲取 token (後端會設置 HttpOnly cookie)
     useEffect(() => {
-        // 如果已經有 token 就不需要重新獲取
-        if (cookies.ordering_token) {
-            setIsLoading(false);
-            return;
-        }
         fetchToken();
-    }, [fetchToken, cookies.ordering_token]);
+    }, [fetchToken]);
 
     return (
         error ? (

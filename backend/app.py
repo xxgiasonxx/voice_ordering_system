@@ -1,45 +1,52 @@
 import uvicorn
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-# from starlette.middleware.sessions import SessionMiddleware
 from blueprint.order import order
-from blueprint.orderSocket import audioWS
+from blueprint.asr_stream import audioSSE
 from blueprint.token import token
 from blueprint.payment import payment
 import os
 
-# 初始化 FastAPI 應用
 app = FastAPI()
 
-# 添加 CORS 中間件
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "http://localhost",
-        "http://127.0.0.1",
-        "http://localhost:5173",
-    ],
+    allow_origins=["http://localhost", "http://localhost:80", "http://localhost:3000"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# # 添加 Session 中間件
-# app.add_middleware(
-#     SessionMiddleware,
-#     secret_key=os.getenv('SECRET_KEY', "your_secret_key_here"),
-#     max_age=int(os.getenv('PERMANENT_SESSION_LIFETIME', 3600)),
-#     session_cookie=os.getenv('SESSION_COOKIE_NAME', 'order_session'),
-#     https_only=os.getenv("HTTPS_ONLY", "false").lower() == "true",
-#     same_site="lax"
-# )
-
-
-# 包含路由
 app.include_router(order, prefix="/order")
 app.include_router(token)
-app.include_router(audioWS)
+app.include_router(audioSSE)
 app.include_router(payment)
 
-if __name__ == '__main__':
-    uvicorn.run(app, host='loaclhost', port=8000)
+
+@app.on_event("startup")
+async def preload_models():
+    from blueprint.asr_stream import get_asr_model
+    import logging
+    logger = logging.getLogger(__name__)
+    logger.info("Preloading ASR model...")
+    get_asr_model()
+    logger.info("ASR model preloaded")
+
+@app.get('/menu')
+async def get_menu():
+    """Return all menu items from PostgreSQL."""
+    from rag.CRUD_database import create_connection
+    conn = create_connection()
+    cur = conn.cursor()
+
+    cur.execute("SELECT id, class, name, price, add_egg, cheese, kimchi, roast, cheese_milk, danish, combo, vegetarian, recommended FROM main_menu ORDER BY id")
+    main_items = list(cur.fetchall())
+
+    cur.execute("SELECT id, name, price, description FROM combo_menu ORDER BY id")
+    combo_items = list(cur.fetchall())
+
+    cur.execute("SELECT id, class, name, M, L FROM drink_item ORDER BY id")
+    drink_items = list(cur.fetchall())
+
+    conn.close()
+    return {"main": main_items, "combos": combo_items, "drinks": drink_items}
