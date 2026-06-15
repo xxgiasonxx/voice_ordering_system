@@ -1,14 +1,7 @@
 import { useEffect, useState } from 'react';
 import { ArrowLeftIcon } from '@/components/Icon';
-import { Link } from 'react-router-dom';
-import axios from 'axios';
-
-// Define types for better code clarity and safety
-interface PaymentOption {
-  id: string;
-  value: string;
-  label: string;
-}
+import Header from '@/components/Header';
+import { useNavigate } from 'react-router-dom';
 
 interface OrderItem {
   id: string;
@@ -29,7 +22,7 @@ interface OrderSummaryValues {
   order_id?: string;
   order_time?: string;
   order_type?: string;
-  payment?:{
+  payment?: {
     method?: string;
     status?: string;
   };
@@ -39,181 +32,165 @@ interface OrderSummaryValues {
 }
 
 const PaymentScreen: React.FC = () => {
-  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<string>("counter-payment"); // Default to 'counter-payment'
+  const navigate = useNavigate();
+  const [selectedPaymentMethod] = useState<string>('counter-payment');
   const [orderSummary, setOrderSummary] = useState<OrderSummaryValues>({
     items: [],
     subtotal: 0,
     deliveryFee: 0,
     total_price: 0,
   });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const baseURL = import.meta.env.VITE_API_BASE_URL || import.meta.env.VITE_BACKEND_API_URL || 'http://localhost:8000';
 
   const fetchOrderSummary = async () => {
-    const baseUrl: string = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
     try {
-      const response = await axios.get(`${baseUrl}/see_order`, {
-        withCredentials: true, // Ensure cookies are sent with the request
+      const response = await fetch(`${baseURL}/see_order`, {
+        credentials: 'include',
       });
-
-      if (response.status === 200) {
-        console.log("Order summary fetched successfully:", response.data);
-        setOrderSummary(response.data.order_state);
-      } else {
-        console.error("Failed to fetch order summary:", response.data.msg);
+      if (response.ok) {
+        const data = await response.json();
+        setOrderSummary(data.order_state);
       }
     } catch (error) {
-      console.error("Error fetching order summary:", error);
+      console.error('Error fetching order summary:', error);
     }
   };
 
   useEffect(() => {
     fetchOrderSummary();
-  }, []); // Fetch order summary on component mount
-
-  const paymentOptions: PaymentOption[] = [
-    { id: "counter-payment-radio", value: "counter-payment", label: "櫃台結帳" },
-    { id: "electronic-payment-radio", value: "electronic-payment", label: "電子支付" },
-  ];
-
-
-  const handlePaymentMethodChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setSelectedPaymentMethod(event.target.value);
-  };
+  }, []);
 
   const handlePaymentSubmission = async () => {
-    // Handle payment submission logic here
-    const baseUrl: string = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
-    const paymentUrl = `${baseUrl}/submit_payment`;
-    const response = await axios.post(paymentUrl, {}, {
-      withCredentials: true, // Ensure cookies are sent with the request
-    });
+    setIsSubmitting(true);
+    try {
+      const [submitRes] = await Promise.all([
+        fetch(`${baseURL}/submit_payment`, {
+          method: 'POST',
+          credentials: 'include',
+        }),
+        fetch(`${baseURL}/clean_cookie`, {
+          method: 'POST',
+          credentials: 'include',
+        }),
+      ]);
 
-    if (response.status === 200) {
-      // Handle successful payment submission
-      console.log("Payment submitted successfully:", response.data.msg);
-      // Redirect to order view or confirmation page
-      alert("感謝您的送出訂單!");
-      window.location.href = "/"; // Redirect to order view
-    } else {
-      // Handle error in payment submission
-      console.error("Payment submission failed:", response.data.msg);
-    }
-
-    const response2 = await axios.post(`${baseUrl}/clean_cookie`, {
-      withCredentials: true, // Ensure cookies are sent with the request
-    });
-
-    if (response2.status === 200) {
-      console.log("Cookies cleaned successfully:", response2.data.msg);
-    } else {
-      console.error("Failed to clean cookies:", response2.data.msg);
+      if (submitRes.ok) {
+        alert('感謝您的訂單！');
+        navigate('/');
+      } else {
+        console.error('Payment submission failed');
+      }
+    } catch (error) {
+      console.error('Error submitting payment:', error);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
-  // CSS custom property for the radio button dot.
-  // Note: The data URL is long; ensure it's correctly formatted.
-  const radioDotSvgUrl = "url('data:image/svg+xml,%3csvg viewBox=%270 0 16 16%27 fill=%27rgb(12,127,242)%27 xmlns=%27http://www.w3.org/2000/svg%27%3e%3ccircle cx=%278%27 cy=%278%27 r=%273%27/%3e%3c/svg%3e')";
-
-  const rootStyle: React.CSSProperties = {
-    '--radio-dot-svg': radioDotSvgUrl,
-    fontFamily: '"Plus Jakarta Sans", "Noto Sans", sans-serif',
-  } as React.CSSProperties; // Added type assertion for custom property
+  const paymentOptions = [
+    { id: 'counter-payment', value: 'counter-payment', label: '櫃台結帳', icon: '💳' },
+    { id: 'electronic-payment', value: 'electronic-payment', label: '電子支付', icon: '📱' },
+  ];
 
   return (
-    <div
-      className="relative flex size-full min-h-screen flex-col bg-slate-50 justify-between group/design-root overflow-x-hidden"
-      style={rootStyle}
-    >
-      {/* Main content area */}
-      <div className="flex-grow px-4 sm:px-6 lg:px-8 max-w-md mx-auto w-full">
-        {/* Header */}
-        <div className="flex items-center bg-slate-50 py-6 pb-4 justify-between sticky top-0 z-10">
-          <div className="text-[#0d141c] flex size-12 shrink-0 items-center" data-icon="ArrowLeft" data-size="24px" data-weight="regular">
-            {/* This icon would typically have an onClick handler for navigation */}
-            <Link
-              to="/orderview"
+    <div className="relative flex min-h-screen flex-col bg-[var(--color-background)]">
+      <Header
+        title="付款"
+        leftIcon={<ArrowLeftIcon />}
+        onLeftClick={() => navigate('/orderview')}
+      />
+
+      <div className="flex-1 px-4 py-6 max-w-md mx-auto w-full">
+        <h3 className="text-[var(--color-text-primary)] text-base font-bold mb-4">付款方式</h3>
+        <div className="space-y-3">
+          {paymentOptions.map((option) => (
+            <label
+              key={option.id}
+              htmlFor={option.id}
+              className={`flex items-center gap-4 rounded-2xl border-2 p-4 cursor-pointer transition-all ${
+                selectedPaymentMethod === option.value
+                  ? 'border-[var(--color-primary)] bg-[var(--color-primary-light)]'
+                  : 'border-[var(--color-border)] bg-white hover:border-[var(--color-border-strong)]'
+              }`}
             >
-              <ArrowLeftIcon />
-            </Link>
-          </div>
-          <h2 className="text-[#0d141c] text-lg font-bold leading-tight tracking-[-0.015em] flex-1 text-center pr-12">付款</h2>
-        </div>
-
-        {/* Payment Method Section */}
-        <div className="mb-8">
-          <h3 className="text-[#0d141c] text-lg font-bold leading-tight tracking-[-0.015em] pb-4 pt-2">付款方式</h3>
-          <div className="flex flex-col gap-4">
-            {paymentOptions.map((option) => (
-              <label
-                key={option.id}
-                htmlFor={option.id}
-                className="flex items-center gap-4 rounded-xl border border-solid border-[#cedbe8] p-4 flex-row-reverse cursor-pointer hover:border-[#0c7ff2] transition-colors"
+              <div
+                className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all ${
+                  selectedPaymentMethod === option.value
+                    ? 'border-[var(--color-primary)] bg-[var(--color-primary)]'
+                    : 'border-[var(--color-border-strong)]'
+                }`}
               >
-                <input
-                  type="radio"
-                  id={option.id}
-                  name="paymentMethodGroup" // Grouping radio buttons
-                  value={option.value}
-                  checked={selectedPaymentMethod === option.value}
-                  onChange={handlePaymentMethodChange}
-                  className="h-5 w-5 border-2 border-[#cedbe8] bg-transparent text-transparent checked:border-[#0c7ff2] checked:bg-[image:var(--radio-dot-svg)] focus:outline-none focus:ring-0 focus:ring-offset-0 checked:focus:border-[#0c7ff2]"
-                />
-                <div className="flex grow flex-col">
-                  <p className="text-[#0d141c] text-sm font-medium leading-normal">{option.label}</p>
-                </div>
-              </label>
-            ))}
-          </div>
+                {selectedPaymentMethod === option.value && (
+                  <div className="w-2 h-2 bg-white rounded-full" />
+                )}
+              </div>
+              <span className="text-xl">{option.icon}</span>
+              <span className="text-[var(--color-text-primary)] font-semibold text-sm">
+                {option.label}
+              </span>
+            </label>
+          ))}
         </div>
 
-        {/* Order Summary Section */}
-        <div className="mb-8">
-          <h3 className="text-[#0d141c] text-lg font-bold leading-tight tracking-[-0.015em] pb-4 pt-2">訂單摘要</h3>
-          <div className="bg-white rounded-xl p-6 border border-[#cedbe8]">
-            {/* Order Items */}
-            {orderSummary.items?.map((item) => (
-              <div key={item.id} className="flex justify-between gap-x-6 py-3">
-                <div className="flex-1">
-                  <p className="text-[#0d141c] text-sm font-medium leading-normal">
-                    {item.class} - {item.name} x{item.quantity}
+        <h3 className="text-[var(--color-text-primary)] text-base font-bold mt-8 mb-4">訂單摘要</h3>
+        <div className="bg-white rounded-2xl border border-[var(--color-border)] overflow-hidden">
+          {orderSummary.items?.map((item, idx) => (
+            <div
+              key={item.id}
+              className={`flex justify-between items-start px-4 py-3 ${
+                idx !== 0 ? 'border-t border-[var(--color-border)]' : ''
+              }`}
+            >
+              <div className="flex-1">
+                <p className="text-[var(--color-text-primary)] text-sm font-medium">
+                  {item.class} - {item.name} x{item.quantity}
+                </p>
+                {item.customization.note && item.customization.note !== '無' && (
+                  <p className="text-[var(--color-text-muted)] text-xs mt-0.5">
+                    備註: {item.customization.note}
                   </p>
-                  {item.customization.note !== "無" && (
-                    <p className="text-[#49739c] text-xs font-normal leading-normal">備註: {item.customization.note}</p>
-                  )}
-                </div>
-                <p className="text-[#0d141c] text-sm font-normal leading-normal text-right">${item.subtotal}</p>
+                )}
               </div>
-            ))}
-            
-            <div className="border-t border-[#cedbe8] my-3"></div>
-            {orderSummary.subtotal && (
-            <div className="flex justify-between gap-x-6 py-3">
-              <p className="text-[#49739c] text-sm font-normal leading-normal">小計</p>
-              <p className="text-[#0d141c] text-sm font-normal leading-normal text-right">${orderSummary.subtotal}</p>
+              <p className="text-[var(--color-text-primary)] text-sm font-medium ml-4">
+                ${item.subtotal}
+              </p>
             </div>
-            )}
-            <div className="border-t border-[#cedbe8] my-3"></div>
-            <div className="flex justify-between gap-x-6 py-3">
-              <p className="text-[#0d141c] text-base font-bold leading-normal">總計</p>
-              <p className="text-[#0d141c] text-base font-bold leading-normal text-right">${orderSummary.total_price}</p>
-            </div>
+          ))}
+
+          {orderSummary.subtotal !== undefined && (
+            <>
+              <div className="border-t border-[var(--color-border)] mx-4" />
+              <div className="flex justify-between px-4 py-3">
+                <p className="text-[var(--color-text-secondary)] text-sm">小計</p>
+                <p className="text-[var(--color-text-primary)] text-sm">${orderSummary.subtotal}</p>
+              </div>
+            </>
+          )}
+
+          <div className="border-t border-[var(--color-border)] mx-4" />
+          <div className="flex justify-between items-center px-4 py-4 bg-[var(--color-primary-light)]">
+            <p className="text-[var(--color-text-primary)] text-base font-bold">總計</p>
+            <p className="text-[var(--color-primary)] text-xl font-bold">
+              ${orderSummary.total_price}
+            </p>
           </div>
         </div>
       </div>
 
-      {/* Footer / Action Button Area */}
-      <div className="px-4 sm:px-6 lg:px-8 max-w-md mx-auto w-full">
-        <div className="flex py-6">
-          <button
-            className="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-xl h-14 px-6 flex-1 bg-[#0c7ff2] text-slate-50 text-base font-bold leading-normal tracking-[-0.015em] hover:bg-blue-600 active:bg-blue-700 transition-colors shadow-lg"
-            // onClick handler for payment submission would go here
-            onClick={handlePaymentSubmission}
-          >
-            <span className="truncate">
-              {selectedPaymentMethod === 'counter-payment' ? '確認櫃台結帳' : '電子支付'} ${orderSummary.total_price}
-            </span>
-          </button>
-        </div>
-        <div className="h-6 bg-slate-50"></div> {/* Bottom spacer */}
+      <div className="px-4 py-6 border-t border-[var(--color-border)] bg-white safe-bottom">
+        <button
+          disabled={isSubmitting}
+          onClick={handlePaymentSubmission}
+          className="flex items-center justify-center w-full h-14 bg-[var(--color-primary)] text-white text-base font-bold rounded-2xl hover:bg-[var(--color-primary-hover)] disabled:opacity-50 active:scale-97 transition-all shadow-lg"
+        >
+          {isSubmitting ? (
+            <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+          ) : (
+            `確認${selectedPaymentMethod === 'counter-payment' ? '櫃台結帳' : '電子支付'} $${orderSummary.total_price}`
+          )}
+        </button>
       </div>
     </div>
   );

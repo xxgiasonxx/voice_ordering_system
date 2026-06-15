@@ -11,7 +11,7 @@ import re
 
 # 初始化嵌入模型
 try:
-    embedding_model = OllamaEmbeddings(model="deepseek-r1:1.5b")
+    embedding_model = OllamaEmbeddings(model="qwen3-embedding:0.6b")
 except Exception as e:
     print(f"嵌入模型載入失敗：{e}")
     raise e

@@ -1,9 +1,8 @@
-import { XIcon } from '@/components/Icon'
-import axios from 'axios';
+import { XIcon } from '@/components/Icon';
+import Header from '@/components/Header';
 import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
-// Define types for better type safety
 interface Customization {
   cus_price: number;
   note: string;
@@ -26,59 +25,51 @@ interface ApiResponse {
   };
 }
 
-
-
 const SeeOrderAPI = async (): Promise<ApiResponse> => {
-  const baseURL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
-  const response = await axios.get<ApiResponse>(`${baseURL}/see_order`, {
-    withCredentials: true,
+  const baseURL = import.meta.env.VITE_API_BASE_URL || import.meta.env.VITE_BACKEND_API_URL || 'http://localhost:8000';
+  const response = await fetch(`${baseURL}/see_order`, {
+    credentials: 'include',
   });
-  
-  if (response.status !== 200) {
-    throw new Error('Failed to fetch order items');
-  }
-  
-  return response.data;
+  if (!response.ok) throw new Error('Failed to fetch order items');
+  return response.json();
 };
 
-// Component for a single order item
 const OrderItemComponent = ({ item }: { item: OrderItem }) => (
-  <div className="flex items-center gap-3 sm:gap-4 bg-white rounded-lg shadow-sm mx-4 px-4 sm:px-6 min-h-[72px] sm:min-h-[80px] py-4 justify-between mb-3">
+  <div className="flex items-center gap-3 bg-white rounded-2xl p-4 shadow-card">
     <div className="flex flex-col justify-center overflow-hidden flex-1 min-w-0">
-      <p className="text-[#0d141c] text-sm sm:text-base font-medium leading-normal line-clamp-1">
+      <p className="text-[var(--color-text-primary)] text-sm font-semibold leading-normal line-clamp-1">
         {item.class} - {item.name}
       </p>
-      <p className="text-[#49739c] text-xs sm:text-sm font-normal leading-normal line-clamp-2 mt-1">
+      <p className="text-[var(--color-text-secondary)] text-xs mt-0.5">
         數量: {item.quantity} | 單價: ${item.unitPrice}
       </p>
-      {item.customization.note !== "無" && (
-        <p className="text-[#49739c] text-xs sm:text-sm font-normal leading-normal line-clamp-2 mt-1">
+      {item.customization.note && item.customization.note !== '無' && (
+        <p className="text-[var(--color-text-secondary)] text-xs mt-0.5">
           客製化: {item.customization.note} (+${item.customization.cus_price})
         </p>
       )}
     </div>
-    <div className="shrink-0 ml-3">
-      <p className="text-[#0d141c] text-sm sm:text-base font-semibold leading-normal whitespace-nowrap">
-        ${item.subtotal}
-      </p>
-    </div>
-  </div>
-);
-
-const LoadingSpinner = () => (
-  <div className="flex justify-center items-center py-12 px-4">
-    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-    <span className="ml-3 text-gray-600">載入中...</span>
+    <p className="text-[var(--color-text-primary)] text-sm font-bold whitespace-nowrap">
+      ${item.subtotal}
+    </p>
   </div>
 );
 
 const EmptyState = () => (
-  <div className="text-center py-12 px-4 text-gray-500">
-    <p className="text-lg">目前沒有訂單項目</p>
+  <div className="flex flex-col items-center justify-center py-16 px-4">
+    <div className="text-5xl mb-4">🛒</div>
+    <p className="text-[var(--color-text-secondary)] text-base font-medium">目前沒有訂單項目</p>
+    <Link
+      to="/menu"
+      className="mt-4 text-[var(--color-primary)] font-semibold hover:underline"
+    >
+      前往菜單
+    </Link>
   </div>
 );
 
 function OrderSummaryScreen() {
+  const navigate = useNavigate();
   const [orderItems, setOrderItems] = useState<OrderItem[]>([]);
   const [total, setTotal] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
@@ -87,93 +78,69 @@ function OrderSummaryScreen() {
   useEffect(() => {
     const fetchOrderItems = async () => {
       try {
-        setIsLoading(true);
-        setError(null);
         const response = await SeeOrderAPI();
         setOrderItems(response.order_state.items || []);
-      } catch (error) {
-        console.error('Error loading order items:', error);
-        setError('載入訂單失敗，使用預設資料');
+        const calculatedTotal = (response.order_state.items || []).reduce(
+          (sum: number, item: OrderItem) => sum + item.subtotal,
+          0
+        );
+        setTotal(calculatedTotal);
+      } catch (err) {
+        console.error('Error loading order items:', err);
+        setError('載入訂單失敗');
       } finally {
         setIsLoading(false);
       }
     };
-
     fetchOrderItems();
   }, []);
 
-  useEffect(() => {
-    const calculatedTotal = orderItems.reduce((sum, item) => sum + item.subtotal, 0);
-    setTotal(calculatedTotal);
-  }, [orderItems]);
-
-
-  const renderContent = () => {
-    if (isLoading) {
-      return <LoadingSpinner />;
-    }
-
-    if (error) {
-      return (
-        <div className="text-center py-6 px-4">
-          <p className="text-red-500 mb-2">{error}</p>
-        </div>
-      );
-    }
-
-    if (orderItems.length === 0) {
-      return <EmptyState />;
-    }
-
-    return (
-      <div className="py-4">
-        {orderItems.map((item) => (
-          <OrderItemComponent key={item.id} item={item} />
-        ))}
-      </div>
-    );
-  };
-
   return (
-    <div
-      className="relative flex size-full min-h-screen flex-col bg-slate-50 justify-between group/design-root overflow-x-hidden"
-      style={{ fontFamily: '"Plus Jakarta Sans", "Noto Sans", sans-serif' }}
-    >
-      <div className="flex-1">
-        {/* Header */}
-        <div className="flex items-center bg-slate-50 px-4 sm:px-6 py-4 pb-2 justify-between sticky top-0 z-10">
-          <div className="text-[#0d141c] flex size-10 sm:size-12 shrink-0 items-center">
-            <Link to="/voiceorder">
-              <XIcon />
-            </Link>
+    <div className="relative flex min-h-screen flex-col bg-[var(--color-background)]">
+      <Header
+        title="訂單明細"
+        leftIcon={<XIcon />}
+        onLeftClick={() => navigate('/menu')}
+      />
+
+      <div className="flex-1 px-4 py-4">
+        {isLoading && (
+          <div className="flex justify-center items-center py-16">
+            <div className="w-8 h-8 border-2 border-[var(--color-border)] border-t-[var(--color-primary)] rounded-full animate-spin" />
           </div>
-          <h1 className="text-lg sm:text-xl font-semibold text-[#0d141c]">訂單明細</h1>
-          <div className="size-10 sm:size-12"></div> {/* Spacer for center alignment */}
-        </div>
-        
-        {/* Order Items List */}
-        <div className="pb-4">
-          {renderContent()}
-        </div>
+        )}
+
+        {error && (
+          <div className="mx-4 p-4 bg-[var(--color-error)]/10 text-[var(--color-error)] rounded-2xl text-sm font-medium">
+            {error}
+          </div>
+        )}
+
+        {!isLoading && !error && orderItems.length === 0 && <EmptyState />}
+
+        {!isLoading && orderItems.length > 0 && (
+          <div className="space-y-3">
+            {orderItems.map((item) => (
+              <OrderItemComponent key={item.id} item={item} />
+            ))}
+          </div>
+        )}
       </div>
-      
-      {/* Total and Submit Section */}
-      <div className="px-4 sm:px-6 py-6 border-t border-slate-200 bg-white space-y-6">
-        <div className="flex justify-between items-center text-lg sm:text-xl font-bold bg-slate-50 px-4 py-3 rounded-lg">
-          <span>總計:</span>
-          <span className="text-blue-600">${total}</span>
-        </div>
-        <button 
-          disabled={orderItems.length === 0}
-          className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-medium py-4 px-6 rounded-xl transition-colors duration-200 text-lg shadow-lg"
-        >
+
+      {orderItems.length > 0 && (
+        <div className="px-4 py-6 border-t border-[var(--color-border)] bg-white space-y-4 safe-bottom">
+          <div className="flex justify-between items-center text-lg font-bold px-4 py-3 bg-[var(--color-primary-light)] rounded-2xl">
+            <span>總計</span>
+            <span className="text-[var(--color-primary)]">${total}</span>
+          </div>
           <Link
             to="/payment"
+            className="flex items-center justify-center w-full h-14 bg-[var(--color-primary)] text-white text-base font-bold rounded-2xl hover:bg-[var(--color-primary-hover)] active:scale-97 transition-all shadow-lg"
           >
             選擇結帳方式
           </Link>
-        </button>
-      </div>
+        </div>
+      )}
     </div>
   );
 }

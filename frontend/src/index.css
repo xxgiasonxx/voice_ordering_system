@@ -1,1 +1,103 @@
 @import "tailwindcss";
+
+@theme {
+  --color-primary: #F5A623;
+  --color-primary-hover: #E8951A;
+  --color-primary-light: #FFF3E0;
+  --color-secondary: #50B4EA;
+  --color-secondary-hover: #4AA3D9;
+  --color-background: #FFFBF5;
+  --color-surface: #FFFFFF;
+  --color-surface-elevated: #FFFDF9;
+  --color-text-primary: #2D2A26;
+  --color-text-secondary: #6B6660;
+  --color-text-muted: #9C9690;
+  --color-border: #EDE8E1;
+  --color-border-strong: #D4CEC7;
+  --color-success: #34C759;
+  --color-warning: #FF9500;
+  --color-error: #FF3B30;
+  --color-orange-gradient: linear-gradient(135deg, #F5A623 0%, #FF7A00 100%);
+  --color-blue-gradient: linear-gradient(135deg, #50B4EA 0%, #0070E0 100%);
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
+  --radius-full: 9999px;
+  --shadow-sm: 0 1px 3px rgba(45, 42, 38, 0.08);
+  --shadow-md: 0 4px 12px rgba(45, 42, 38, 0.10);
+  --shadow-lg: 0 8px 24px rgba(45, 42, 38, 0.12);
+  --shadow-card: 0 2px 8px rgba(45, 42, 38, 0.06), 0 1px 2px rgba(45, 42, 38, 0.04);
+  --font-family-base: "Plus Jakarta Sans", "Noto Sans TC", system-ui, sans-serif;
+}
+
+:root {
+  font-family: var(--font-family-base);
+  background-color: var(--color-background);
+  color: var(--color-text-primary);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+}
+
+@keyframes pulse-ring {
+  0% { transform: scale(1); opacity: 0.8; }
+  100% { transform: scale(1.6); opacity: 0; }
+}
+
+@keyframes ping {
+  75%, 100% { transform: scale(2); opacity: 0; }
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+
+@keyframes fade-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slide-up {
+  from { opacity: 0; transform: translateY(24px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fade-in {
+  animation: fade-in 0.3s ease-out forwards;
+}
+
+.animate-slide-up {
+  animation: slide-up 0.4s ease-out forwards;
+}
+
+.animate-float {
+  animation: float 3s ease-in-out infinite;
+}
+
+.animate-ping {
+  animation: ping 1.5s cubic-bezier(0, 0, 0.2, 1) infinite;
+}
+
+/* Hide scrollbar */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}

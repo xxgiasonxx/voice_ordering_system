@@ -122,7 +122,7 @@ def serialize_documents(documents):
 
 if __name__ == "__main__":
     # 初始化嵌入模型
-    embedding_model = OllamaEmbeddings(model="deepseek-r1:1.5b")
+    embedding_model = OllamaEmbeddings(model="qwen3-embedding:0.6b")
     
     # 設定儲存選項
     use_json = True
