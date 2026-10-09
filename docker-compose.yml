@@ -35,6 +35,8 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+      ollama:
+        condition: service_healthy # 等模型下載完才啟動，避免 model not found
     environment:
       # 如果您的後端需要任何環境變數，可以在這裡設定
       # 例如：DATABASE_URL: postgresql://user:password@db:5432/mydb
@@ -47,10 +49,10 @@ services:
       CHROMADB_PATH: ./db/chroma_db # Path to your ChromaDB database
       DB_PATH: ./db/morning_eat.db # Path to your SQLite database
       GOOGLE_API_KEY: "your_google_ai_studio_api_key"  # Required for Gemini LLM !!important!!
-      QWEN_ASR_MODEL: Qwen/Qwen3-ASR-0.6B
+      ASR_MODEL: moonshine-ai/moonshine-streaming-tiny-zh
       HF_HOME: /root/.cache/huggingface
       OLLAMA_BASE_URL: http://ollama:11434
-      LLM_MODEL: qwen2.5:1.5b
+      LLM_MODEL: qwen3:1.7b
       # LLM_MODEL: gemini_api
       DB_URL: postgresql://postgres:postgres@postgres:5432/morning_eat
 
@@ -91,18 +93,14 @@ services:
       - OLLAMA_KEEP_ALIVE=24h
       - OLLAMA_HOST=0.0.0.0
     # 💡 核心優化：利用內建的 ollama list 當作健康檢查（免安裝 curl）
+    # 兩個模型都下載完才算健康；首次啟動下載約 2GB，start_period 內失敗不計
     healthcheck:
-      test: ["CMD-SHELL", "ollama list > /dev/null 2>&1"]
+      test: ["CMD-SHELL", "ollama list | grep -q 'qwen3:1.7b' && ollama list | grep -q 'qwen3-embedding:0.6b'"]
       interval: 10s
       timeout: 5s
       retries: 3
-    deploy:
-      resources:
-        reservations:
-          devices:
-            - driver: nvidia
-              count: all
-              capabilities: [gpu]
+      start_period: 15m
+    # NVIDIA GPU 設定在 docker-compose.gpu.yml（Mac 沒有 NVIDIA GPU，放這裡會無法啟動）
 
 volumes:
   redis_data:
