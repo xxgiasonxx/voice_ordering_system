@@ -19,11 +19,14 @@ def create_connection(db_file: str = None) -> Any:
         import psycopg2
         from psycopg2.extras import RealDictCursor
         conn = psycopg2.connect(db_url, cursor_factory=RealDictCursor)
+        # 全域共用同一條連線；沒開 autocommit 時，任何一次查詢出錯都會讓之後所有查詢失敗直到重啟
+        conn.autocommit = True
         return conn
 
     if db_file is None:
         db_file = os.getenv("DB_PATH", "./db/morning_eat.db")
-    conn = sqlite3.connect(db_file)
+    # LLM 在背景 thread 執行時會用到這條連線；只有讀取，跨 thread 共用是安全的
+    conn = sqlite3.connect(db_file, check_same_thread=False)
     conn.row_factory = dict_factory
     return conn
 
@@ -70,3 +73,15 @@ def query_name_to_price(conn, cls: str, name: str):
     if isinstance(results[0], dict):
         return results
     return [dict(zip([desc[0] for desc in cur.description], row)) for row in results]
+def query_all_menu(conn):
+    """回傳所有品項（單點、飲料、套餐），供品名對應 id 使用"""
+    cur = conn.cursor()
+    items = []
+    for sql in ("SELECT * FROM main_menu", "SELECT * FROM drink_item", "SELECT *, '套餐' AS class FROM combo_menu"):
+        cur.execute(sql)
+        rows = cur.fetchall()
+        if rows and not isinstance(rows[0], dict):
+            cols = [desc[0] for desc in cur.description]
+            rows = [dict(zip(cols, row)) for row in rows]
+        items.extend(rows)
+    return items
