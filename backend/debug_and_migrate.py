@@ -3,8 +3,10 @@ import os
 import sqlite3
 import pandas as pd
 
-db_path = '/app/backend/db/morning_eat.db'
-xlsx_path = '/app/backend/morning_eat.xlsx'
+# 以腳本所在位置為準，容器內（/app）或本機執行都找得到檔案
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+db_path = os.path.join(BASE_DIR, 'db', 'morning_eat.db')
+xlsx_path = os.path.join(BASE_DIR, 'morning_eat.xlsx')
 
 # Step 1: Load xlsx into SQLite
 print("=== Step 1: Loading xlsx into SQLite ===")
@@ -87,8 +89,8 @@ pg_cur.execute("""CREATE TABLE drink_item (
     id TEXT PRIMARY KEY,
     class TEXT NOT NULL,
     name TEXT NOT NULL,
-    M REAL NOT NULL,
-    L REAL
+    "M" REAL NOT NULL,
+    "L" REAL
 )""")
 
 pg_conn.commit()
@@ -117,18 +119,18 @@ cursor.execute("SELECT * FROM drink_item")
 cols = [desc[0] for desc in cursor.description]
 for row in cursor.fetchall():
     row_dict = dict(zip(cols, row))
-    pg_cur.execute("""INSERT INTO drink_item (id,class,name,M,L) VALUES (%s,%s,%s,%s,%s)""",
+    pg_cur.execute("""INSERT INTO drink_item (id,class,name,"M","L") VALUES (%s,%s,%s,%s,%s)""",
         (row_dict['id'], row_dict['class'], row_dict['name'], row_dict['M'], row_dict['L']))
 
 pg_conn.commit()
 
 # Verify
 pg_cur.execute('SELECT COUNT(*) FROM main_menu')
-print(f"PostgreSQL main_menu: {pg_cur.fetchone()[0]} rows")
+print(f"PostgreSQL main_menu: {pg_cur.fetchone()['count']} rows")
 pg_cur.execute('SELECT COUNT(*) FROM combo_menu')
-print(f"PostgreSQL combo_menu: {pg_cur.fetchone()[0]} rows")
+print(f"PostgreSQL combo_menu: {pg_cur.fetchone()['count']} rows")
 pg_cur.execute('SELECT COUNT(*) FROM drink_item')
-print(f"PostgreSQL drink_item: {pg_cur.fetchone()[0]} rows")
+print(f"PostgreSQL drink_item: {pg_cur.fetchone()['count']} rows")
 
 conn.close()
 pg_conn.close()
