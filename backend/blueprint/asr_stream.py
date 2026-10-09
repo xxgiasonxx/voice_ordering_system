@@ -1,20 +1,19 @@
 """
-Streaming ASR via WebSocket + Qwen3-ASR (qwen-asr library)
-- Sliding Window Audio Buffer (2.0s window, 0.5s overlap)
-- Qwen3-ASR via qwen-asr library (CPU)
+Streaming ASR via WebSocket + Moonshine (transformers)
+- 按住說話：放開按鈕時前端送 end_utterance，整段語音辨識一次、呼叫 LLM 一次
+- 說話途中每 2 秒辨識一次目前內容，只用來即時顯示
+- moonshine-ai/moonshine-streaming-tiny-zh via transformers (CPU)
 - WebSocket for audio upload + real-time results (asr_partial / asr_final / llm)
 """
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect, Cookie
 from fastapi.responses import JSONResponse
-from typing import Optional
 import asyncio
 import json
+import time
 import logging
-import tempfile
-import os
-from dataclasses import dataclass, field
 from datetime import datetime
 from dotenv import load_dotenv
+from opencc import OpenCC
 import os as os_mod
 
 from rag.rag_morning_eat import order_real_time
@@ -26,107 +25,62 @@ load_dotenv()
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-QWEN_ASR_MODEL = os_mod.getenv("QWEN_ASR_MODEL", "Qwen/Qwen3-ASR-0.6B")
+ASR_MODEL = os_mod.getenv("ASR_MODEL", "moonshine-ai/moonshine-streaming-tiny-zh")
 SAMPLE_RATE = 16000
-WINDOW_SIZE = 2.0
-OVERLAP = 0.5
 BYTES_PER_SECOND = SAMPLE_RATE * 2
-MAX_BUFFER_SIZE = 10 * BYTES_PER_SECOND
+PARTIAL_BYTES = 2 * BYTES_PER_SECOND        # 每多 2 秒更新一次即時字幕
+MIN_UTTERANCE_BYTES = BYTES_PER_SECOND // 3  # 不到 0.33 秒視為誤觸
+MAX_BUFFER_SIZE = 30 * BYTES_PER_SECOND
 
 audioSSE = APIRouter()
+
+# Moonshine 輸出簡體中文，轉成台灣繁體
+_s2tw = OpenCC("s2tw")
 
 # Lazy-loaded ASR model
 _asr_model = None
 
 
 def get_asr_model():
-    """Lazy init Qwen3-ASR model via qwen-asr library (CPU)"""
+    """Lazy init Moonshine streaming ASR model + processor (CPU)"""
     global _asr_model
     if _asr_model is None:
-        import torch
-        from qwen_asr import Qwen3ASRModel
+        from transformers import MoonshineStreamingForConditionalGeneration, AutoProcessor
 
-        logger.info(f"Loading Qwen3-ASR model: {QWEN_ASR_MODEL}")
+        logger.info(f"Loading Moonshine ASR model: {ASR_MODEL}")
 
-        dtype = torch.bfloat16 if torch.cuda.is_available() else torch.float32
-        device = "cuda:0" if torch.cuda.is_available() else "cpu"
-
-        _asr_model = Qwen3ASRModel.from_pretrained(
-            QWEN_ASR_MODEL,
-            dtype=dtype,
-            device_map=device,
-            max_inference_batch_size=32,
-            max_new_tokens=256,
-        )
+        model = MoonshineStreamingForConditionalGeneration.from_pretrained(ASR_MODEL).eval()
+        processor = AutoProcessor.from_pretrained(ASR_MODEL)
+        _asr_model = (model, processor)
 
         logger.info("ASR model loaded successfully")
     return _asr_model
 
 
-@dataclass
-class AudioBuffer:
-    window_size: float = WINDOW_SIZE
-    overlap: float = OVERLAP
-    sample_rate: int = SAMPLE_RATE
-    buffer: bytearray = field(default_factory=bytearray)
-    last_final_text: str = ""
-    pending_text: str = ""
-
-    def __post_init__(self):
-        self.bytes_per_second = self.sample_rate * 2
-        self.window_bytes = int(self.bytes_per_second * self.window_size)
-        self.overlap_bytes = int(self.bytes_per_second * self.overlap)
-
-    def add_chunk(self, chunk: bytes) -> Optional[bytes]:
-        self.buffer.extend(chunk)
-        if len(self.buffer) >= self.window_bytes:
-            result = bytes(self.buffer)
-            self.buffer = self.buffer[-self.overlap_bytes:]
-            return result
-        return None
-
-    def extract_new_part(self, current_text: str) -> str:
-        if not current_text:
-            return ""
-        if self.last_final_text and current_text.startswith(self.last_final_text):
-            return current_text[len(self.last_final_text):].strip()
-        if self.last_final_text in current_text:
-            idx = current_text.index(self.last_final_text) + len(self.last_final_text)
-            return current_text[idx:].strip()
-        return current_text.strip()
-
-    def update_final(self, text: str):
-        self.last_final_text = text
-        self.pending_text = ""
-
-    def flush_remaining(self) -> Optional[bytes]:
-        if len(self.buffer) > 0:
-            result = bytes(self.buffer)
-            self.buffer = bytearray()
-            return result
-        return None
+async def transcribe_with_moonshine(audio_bytes: bytes) -> str:
+    """Transcribe audio using local Moonshine streaming model (CPU)"""
+    # 推論是同步運算，丟到 thread 避免卡住 event loop
+    return await asyncio.to_thread(_transcribe_sync, audio_bytes)
 
 
-async def transcribe_with_qwen(audio_bytes: bytes) -> str:
-    """Transcribe audio using local Qwen3-ASR model (qwen-asr, CPU)"""
+def _transcribe_sync(audio_bytes: bytes) -> str:
     import numpy as np
-    import soundfile as sf
-
-    with tempfile.NamedTemporaryFile(delete=False, suffix=".wav") as f:
-        temp_path = f.name
+    import torch
 
     try:
         audio_array = np.frombuffer(audio_bytes, dtype=np.int16).astype(np.float32) / 32768.0
-        sf.write(temp_path, audio_array, SAMPLE_RATE)
 
-        model = get_asr_model()
-        results = model.transcribe(audio=temp_path, language="Chinese")
-        return results[0].text
+        model, processor = get_asr_model()
+        inputs = processor(audio_array, return_tensors="pt", sampling_rate=SAMPLE_RATE)
+        # Moonshine 建議：依音訊長度限制 token 數，避免幻覺重複輸出
+        seq_lens = inputs.attention_mask.sum(dim=-1)
+        max_new_tokens = int((seq_lens * 6.5 / SAMPLE_RATE).max().item()) + 2
+        with torch.inference_mode():
+            generated = model.generate(**inputs, max_new_tokens=max_new_tokens)
+        return _s2tw.convert(processor.batch_decode(generated, skip_special_tokens=True)[0]).replace("臺", "台")
     except Exception as e:
-        logger.error(f"Qwen ASR local inference failed: {e}")
+        logger.error(f"Moonshine ASR local inference failed: {e}")
         raise
-    finally:
-        os.remove(temp_path)
 
 
 def order_diff_state(order_state: dict, new_order_state: dict):
@@ -162,7 +116,9 @@ async def call_llm(text: str, token: str):
     }
     conv_history = json.loads(redis_client.get(f'{token}_conversation'))
 
-    response, neww_order_state = order_real_time(
+    # LLM 呼叫是同步的（Docker 裡 CPU 跑可能要數十秒），丟到 thread 避免整個 WebSocket 卡死
+    response, neww_order_state = await asyncio.to_thread(
+        order_real_time,
         query=text,
         conversation_history=conv_history,
         vectorstore=vectorstore,
@@ -203,69 +159,54 @@ async def get_conversation_history(ordering_token: str = Cookie(None)):
         )
 
 
-async def process_window(websocket: WebSocket, audio_data: bytes, audio_buffer: AudioBuffer, ordering_token: str):
+async def send_partial(websocket: WebSocket, audio_data: bytes):
+    """說話途中的即時字幕，只顯示不呼叫 LLM"""
+    transcript = await transcribe_with_moonshine(audio_data)
+    if transcript:
+        await websocket.send_json({"type": "asr_partial", "text": transcript, "full_text": transcript, "final": False})
+
+
+async def process_utterance(websocket: WebSocket, audio_data: bytes, ordering_token: str):
+    """放開按鈕後：整段語音辨識一次，再呼叫 LLM 一次"""
     try:
-        logger.info(f"Processing window of {len(audio_data)} bytes")
-        transcript = await transcribe_with_qwen(audio_data)
+        import numpy as np
+        transcript = await transcribe_with_moonshine(audio_data)
+        # 音量峰值（0~1）：接近 0 代表瀏覽器沒收到聲音（麥克風權限或裝置問題）
+        peak = int(np.abs(np.frombuffer(audio_data, dtype=np.int16)).max()) / 32768
+        logger.info(f"ASR ({len(audio_data) / BYTES_PER_SECOND:.1f}s, peak={peak:.3f}): {transcript!r}")
+        await websocket.send_json({"type": "asr_final", "text": transcript, "new_part": transcript, "final": True})
 
         if not transcript:
+            reply = "沒有收到聲音耶，請確認麥克風有開、瀏覽器有麥克風權限喔！" if peak < 0.02 else "不好意思，沒聽清楚，可以再說一次嗎？"
+            await websocket.send_json({"type": "llm", "response": reply, "time": datetime.now().isoformat()})
             return
 
-        new_text = audio_buffer.extract_new_part(transcript)
-
-        if new_text:
-            await websocket.send_json({
-                "type": "asr_partial",
-                "text": new_text,
-                "full_text": transcript,
-                "final": False
-            })
-            audio_buffer.pending_text += new_text
-        else:
-            await websocket.send_json({
-                "type": "asr_partial",
-                "text": "",
-                "full_text": transcript,
-                "final": False
-            })
-
-        await websocket.send_json({
-            "type": "asr_final",
-            "text": transcript,
-            "new_part": new_text,
-            "final": True
-        })
-
-        audio_buffer.update_final(transcript)
-
-        if new_text:
-            conv = json.loads(redis_client.get(f'{ordering_token}_conversation'))
-            try:
-                transcript_send = {"type": "cus", "transcript": new_text, "time": datetime.now().isoformat()}
-                await websocket.send_json(transcript_send)
-                conv.append(transcript_send)
-            except Exception as e:
-                logger.error(f"Error sending transcript: {e}")
-                return
-            try:
-                response, status, order_diff = await call_llm(new_text, ordering_token)
-                llm_send = {"type": "llm", "response": response, "time": datetime.now().isoformat()}
-                await websocket.send_json(llm_send)
-                await websocket.send_json({"type": "order", "diff": order_diff})
-                conv.append(llm_send)
-            except Exception as e:
-                logger.error(f"Error calling LLM: {e}")
-                return
+        conv = json.loads(redis_client.get(f'{ordering_token}_conversation'))
+        transcript_send = {"type": "cus", "transcript": transcript, "time": datetime.now().isoformat()}
+        await websocket.send_json(transcript_send)
+        conv.append(transcript_send)
+        try:
+            start = time.time()
+            response, status, order_diff = await call_llm(transcript, ordering_token)
+            logger.info(f"LLM ({time.time() - start:.1f}s): {response!r}")
+            llm_send = {"type": "llm", "response": response, "time": datetime.now().isoformat()}
+            await websocket.send_json(llm_send)
+            await websocket.send_json({"type": "order", "diff": order_diff})
+            conv.append(llm_send)
+        except Exception as e:
+            logger.error(f"Error calling LLM: {e}", exc_info=True)
+            await websocket.send_json({"type": "error", "msg": "點餐系統暫時出錯，請再說一次"})
+            return
+        redis_client.set(f'{ordering_token}_conversation', json.dumps(conv))
+        if status:
+            end_send = {"type": "end", "msg": "Conversation ended"}
+            await websocket.send_json(end_send)
+            conv.append(end_send)
             redis_client.set(f'{ordering_token}_conversation', json.dumps(conv))
-            if status:
-                end_send = {"type": "end", "msg": "Conversation ended"}
-                await websocket.send_json(end_send)
-                conv.append(end_send)
-                redis_client.set(f'{ordering_token}_conversation', json.dumps(conv))
-                await websocket.close()
+            await websocket.close()
 
     except Exception as e:
-        logger.error(f"Window processing error: {e}")
+        logger.error(f"Utterance processing error: {e}", exc_info=True)
         await websocket.send_json({"type": "error", "msg": f"ASR processing error: {str(e)}"})
 
 
@@ -288,21 +229,37 @@ async def websocket_endpoint(websocket: WebSocket, ordering_token: str = Cookie(
             await websocket.close(code=1008)
         return
 
-    audio_buffer = AudioBuffer(window_size=WINDOW_SIZE, overlap=OVERLAP)
+    utterance = bytearray()
+    last_partial = 0
 
     try:
         while True:
-            data = await websocket.receive_bytes()
-            logger.debug(f"Received audio chunk of {len(data)} bytes")
+            message = await websocket.receive()
+            if message["type"] == "websocket.disconnect":
+                raise WebSocketDisconnect(message.get("code", 1000))
 
-            if len(audio_buffer.buffer) + len(data) > MAX_BUFFER_SIZE:
-                logger.warning("Buffer overflow, flushing...")
-                audio_buffer.buffer = audio_buffer.buffer[-MAX_BUFFER_SIZE // 2:]
+            if message.get("bytes"):
+                if len(utterance) + len(message["bytes"]) > MAX_BUFFER_SIZE:
+                    logger.warning("Utterance too long, dropping oldest audio")
+                    utterance = utterance[-MAX_BUFFER_SIZE // 2:]
+                    last_partial = 0
+                utterance.extend(message["bytes"])
+                if len(utterance) - last_partial >= PARTIAL_BYTES:
+                    last_partial = len(utterance)
+                    await send_partial(websocket, bytes(utterance))
 
-            full_window = audio_buffer.add_chunk(data)
-
-            if full_window:
-                await process_window(websocket, full_window, audio_buffer, token_id)
+            elif message.get("text"):
+                try:
+                    signal = json.loads(message["text"])
+                except json.JSONDecodeError:
+                    continue
+                # 前端放開按鈕：處理整段語音
+                if signal.get("type") == "end_utterance":
+                    audio_data, utterance, last_partial = bytes(utterance), bytearray(), 0
+                    if len(audio_data) >= MIN_UTTERANCE_BYTES:
+                        await process_utterance(websocket, audio_data, token_id)
+                        if websocket.application_state.name != "CONNECTED":
+                            break  # 訂單結束，process_utterance 已關閉連線
 
     except WebSocketDisconnect:
         logger.info("WebSocket disconnected")
@@ -311,12 +268,6 @@ async def websocket_endpoint(websocket: WebSocket, ordering_token: str = Cookie(
         if websocket.client_state.name == "CONNECTED":
             await websocket.send_json({"type": "error", "msg": "Error processing audio"})
     finally:
-        remaining = audio_buffer.flush_remaining()
-        if remaining and len(remaining) > BYTES_PER_SECOND:
-            try:
-                await process_window(websocket, remaining, audio_buffer, token_id)
-            except Exception:
-                pass
         if websocket.client_state.name == "CONNECTED":
             await websocket.send_json({"type": "close", "msg": "Closing WebSocket connection"})
             await websocket.close()
