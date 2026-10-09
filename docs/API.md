@@ -266,6 +266,73 @@ Content-Type: application/json
 
 ---
 
+### WebSocket /asr
+
+語音點餐（按住說話）。連線時帶 `ordering_token` Cookie（瀏覽器會自動帶）。
+
+```
+ws://localhost:8000/asr
+```
+
+#### 用戶端 → 伺服器
+
+| 類型 | 內容 | 時機 |
+|------|------|------|
+| 二進位訊息 | 16kHz、單聲道、16-bit little-endian PCM | 按住按鈕期間持續送出（前端每次 4096 取樣 = 8192 bytes） |
+| 文字訊息 | `{"type": "end_utterance"}` | 放開按鈕，表示這句話說完 |
+
+不到 0.33 秒的語音會被忽略（視為誤觸）；單句最長保留 30 秒。
+
+#### 伺服器 → 用戶端
+
+| `type` | 欄位 | 說明 |
+|------|------|------|
+| `success` | `msg` | 連線建立 |
+| `asr_partial` | `text`, `full_text`, `final: false` | 說話途中每 2 秒的即時字幕（只顯示用） |
+| `asr_final` | `text`, `new_part`, `final: true` | 放開按鈕後，整句的辨識結果 |
+| `cus` | `transcript`, `time` | 顧客這句話（會存入對話紀錄） |
+| `llm` | `response`, `time` | 店員回覆。沒辨識到文字時也用這個類型回覆「沒聽清楚」或「沒有收到聲音」 |
+| `order` | `diff`: `{added, removed, modified}` | 訂單變更 |
+| `end` | `msg` | 顧客確認結帳，伺服器隨後關閉連線 |
+| `error` | `msg` | 處理失敗（例如 LLM 出錯時為「點餐系統暫時出錯，請再說一次」） |
+| `close` | `msg` | Token 驗證失敗或伺服器關閉連線 |
+
+#### 一次完整的對話
+
+```
+→ (連線)
+← {"type": "success", "msg": "WebSocket connection established"}
+→ <PCM 8192 bytes> × N                      # 按住說話
+← {"type": "asr_partial", "text": "我要一份薯條跟", ...}
+→ {"type": "end_utterance"}                  # 放開按鈕
+← {"type": "asr_final", "text": "我要一份薯條跟一個火腿吐司", ...}
+← {"type": "cus", "transcript": "我要一份薯條跟一個火腿吐司", ...}
+← {"type": "llm", "response": "好喔！單點-薯條 35 元，吐司-火腿 30 元！還要啥？", ...}
+← {"type": "order", "diff": {...}}
+```
+
+---
+
+### GET /history
+
+取得語音點餐的對話紀錄。
+
+**回應 (200)**
+```json
+{
+  "conversation": [
+    {"type": "llm", "response": "您好！歡迎使用語音點餐系統...", "time": "2025-06-15T10:30:00"},
+    {"type": "cus", "transcript": "我要一個火腿吐司", "time": "2025-06-15T10:30:12"}
+  ]
+}
+```
+
+**回應 (404)**：`{"message": "No conversation history found"}`
+
+**回應 (401)**：`{"error": "Invalid or expired token"}`
+
+---
+
 ### GET /see_order
 
 取得當前訂單狀態。

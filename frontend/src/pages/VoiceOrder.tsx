@@ -57,7 +57,12 @@ export const LiveTranscription: React.FC = () => {
   }, []);
 
   const startCapture = () => { if (sourceRef.current && processorRef.current && audioCtxRef.current) { isRecordingRef.current = true; setIsRecording(true); sourceRef.current.connect(processorRef.current); processorRef.current.connect(audioCtxRef.current.destination); } };
-  const stopCapture = () => { isRecordingRef.current = false; setIsRecording(false); try { processorRef.current?.disconnect(); } catch {} };
+  const stopCapture = () => {
+    const wasRecording = isRecordingRef.current;
+    isRecordingRef.current = false; setIsRecording(false); try { processorRef.current?.disconnect(); } catch {}
+    // 放開按鈕：通知後端這句話說完了，整段辨識並回覆
+    if (wasRecording && socketRef.current?.readyState === WebSocket.OPEN) socketRef.current.send(JSON.stringify({ type: 'end_utterance' }));
+  };
 
   const initAudio = useCallback(async () => {
     try {

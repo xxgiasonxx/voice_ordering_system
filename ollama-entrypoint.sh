@@ -21,12 +21,12 @@ done
 
 echo "[Ollama] 檢查並拉取模型..."
 
-# 檢查與拉取 qwen2.5:1.5b
-if ! ollama list | awk '{print $1}' | grep -Fxq "qwen2.5:1.5b"; then
-    echo "[Ollama] 正在下載 qwen2.5:1.5b..."
-    ollama pull qwen2.5:1.5b || echo "[警告] qwen2.5:1.5b 下載失敗..."
+# 檢查與拉取 qwen3:1.7b
+if ! ollama list | awk '{print $1}' | grep -Fxq "qwen3:1.7b"; then
+    echo "[Ollama] 正在下載 qwen3:1.7b..."
+    ollama pull qwen3:1.7b || echo "[警告] qwen3:1.7b 下載失敗..."
 else
-    echo "[Ollama] qwen2.5:1.5b 已存在，跳過下載。"
+    echo "[Ollama] qwen3:1.7b 已存在，跳過下載。"
 fi
 
 # 檢查與拉取 qwen3-embedding:0.6b

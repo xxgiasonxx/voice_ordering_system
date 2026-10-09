@@ -18,15 +18,18 @@ def useModel(model):
         )
         return llm
     if model == "qwen3:4b":
-        from langchain_community.llms import Qwen
         llm = OllamaLLM(model="gemma3:4b", temperature=0.7, top_k=30, top_p=0.9)
         return llm
-    if model == "qwen2.5:1.5b":
-        base_url = os.getenv("OLLAMA_BASE_URL", "http://ollama:11434")
-        llm = OllamaLLM(
-                model="qwen2.5:1.5b",
-                base_url=base_url,
-                )
-        return llm
+    # 其他名稱一律視為 Ollama 模型，例如 qwen3:1.7b、qwen3:0.6b
+    base_url = os.getenv("OLLAMA_BASE_URL", "http://ollama:11434")
+    llm = OllamaLLM(
+            model=model,
+            base_url=base_url,
+            num_ctx=8192,  # prompt 約 6k tokens，Ollama 預設 4096 會截斷掉格式說明
+            num_predict=300,  # 小模型偶爾會無限重複輸出，限制長度避免卡住
+            reasoning=False,  # 關閉 Qwen3 思考模式，否則每次回應多等好幾秒
+            temperature=0.1,  # 點餐要穩定一致，不需要創意
+            )
+    return llm
     
         

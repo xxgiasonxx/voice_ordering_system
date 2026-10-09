@@ -3,7 +3,7 @@ import os
 import shutil
 from langchain_ollama import OllamaEmbeddings
 from langchain_chroma import Chroma
-from langchain.docstore.document import Document
+from langchain_core.documents import Document
 from rag.CRUD_database import create_connection
 
 os.environ.setdefault("OLLAMA_BASE_URL", "http://ollama:11434")

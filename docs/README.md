@@ -6,11 +6,13 @@
 
 | 文件 | 說明 |
 |------|------|
-| [ARCHITECTURE.md](ARCHITECTURE.md) | 系統架構與技術詳細說明 |
-| [API.md](API.md) | API 端點完整文件 |
-| [DEPLOYMENT.md](DEPLOYMENT.md) | 部署指南 |
-| [DEVELOPMENT.md](DEVELOPMENT.md) | 開發指南 |
-| [TROUBLESHOOTING.md](TROUBLESHOOTING.md) | 常見問題與解決方案 |
+| [ARCHITECTURE.md](ARCHITECTURE.md) | 系統架構、語音點餐流程、資料庫結構 |
+| [API.md](API.md) | REST API 與 WebSocket `/asr` 訊息格式 |
+| [DEPLOYMENT.md](DEPLOYMENT.md) | 部署、首次啟動流程、GPU、備份 |
+| [DEVELOPMENT.md](DEVELOPMENT.md) | 本機開發、修改點餐邏輯與菜單 |
+| [TROUBLESHOOTING.md](TROUBLESHOOTING.md) | 常見問題（麥克風沒聲音、回覆慢、模型找不到…） |
+
+快速開始請看專案根目錄的 [README](../README.md)。
 
 ## 快速參考
 
@@ -21,6 +23,7 @@
 | 前端 | http://localhost |
 | 後端 API | http://localhost:8000 |
 | API 文件 | http://localhost:8000/docs |
+| 語音點餐 WebSocket | ws://localhost:8000/asr |
 | PostgreSQL | localhost:5432 |
 | Redis | localhost:6379 |
 | Ollama | http://localhost:11434 |
@@ -37,7 +40,7 @@
 | 容器名稱 | 服務 |
 |----------|------|
 | voice_ordering_system-frontend | 前端 |
-| voice_ordering_system-backend | 後端 API |
+| voice_ordering_system-backend | 後端 API（含 Moonshine 語音辨識） |
 | voice_ordering_system-postgres | 資料庫 |
 | voice_ordering_system-redis | 快取 |
-| voice_ordering_system-ollama | AI 模型服務 |
+| voice_ordering_system-ollama | LLM 與 embedding 模型（qwen3:1.7b、qwen3-embedding:0.6b） |

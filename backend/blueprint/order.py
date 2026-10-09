@@ -39,7 +39,7 @@ def _get_item_from_db(item_id: int, conn):
     cur = conn.cursor()
 
     if item_id > 1000:
-        cur.execute("SELECT id, class, name, M as price, M, L FROM drink_item WHERE id = %s::text", (str(item_id),))
+        cur.execute('SELECT id, class, name, "M" as price, "M", "L" FROM drink_item WHERE id = %s::text', (str(item_id),))
     else:
         cur.execute("SELECT id, class, name, price FROM main_menu WHERE id = %s", (item_id,))
 
