@@ -44,8 +44,8 @@ def create_pg_tables(pg_conn):
         id TEXT PRIMARY KEY,
         class TEXT NOT NULL,
         name TEXT NOT NULL,
-        M REAL NOT NULL,
-        L REAL
+        "M" REAL NOT NULL,
+        "L" REAL
     )""")
 
     pg_conn.commit()
@@ -90,7 +90,7 @@ def main():
         ['id','name','price','description'])
 
     migrate_table(pg_conn, sqlite_conn, "drink_item",
-        ['id','class','name','M','L'])
+        ['id','class','name','"M"','"L"'])
 
     sqlite_conn.close()
     pg_conn.close()
